@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>SpeedWalk I</title>
+	<link rel="stylesheet" type="text/css" href="/public/speedBarGraph.css">
+</head>
+<body onload='init();' style="background-color:#000000">
+
+<div id='interface'>
+ <table style="border:0; width:100%; height:100%;"><tbody>
+ <tr> <!-- Ligne 1 -->
+ <td id="clock" style="text-align:center; vertical-align:bottom; width:25%; height:50%;">
+	<p style="text-align:center;"><canvas id="canvasClock" width="200" height="200"></canvas></p>
+ </td>
+
+ <td id="speed" style="text-align:center; vertical-align:middle; width:50%; height:50%;">
+	<p style="text-align:center;"><canvas id="canvasSpeedo" onClick="setCustom();">No canvas in your browser...sorry...</canvas></p>
+ </td>
+
+ <td id="chrono" style="text-align:center; vertical-align:bottom; width:25%; height:50%;">
+	<center><select id="comboStopMode" style='display:none; text-align:center;' onchange="setStopMode(this);">
+		<option selected="selected" value=0>Sélection de programme.</option>
+		<option value=1>Arrêt sur durée,</option>
+		<option value=2>Arrêt sur distance,</option>
+		<option value=3>Choix d'un programme.</option>
+	</select></center>
+	<center><select id="comboTime" style='display:none;' onchange="closeCombos(this);">
+		<option selected="selected" value=0>Sélection de la durée:</option>
+		<option value=299>Arrêt dans: 5 mn</option>
+		<option value=599>Arrêt dans: 10 mn</option>
+		<option value=899>Arrêt dans: 15 mn</option>
+		<option value=1199>Arrêt dans: 20 mn</option>
+		<option value=1499>Arrêt dans: 25 mn</option>
+		<option value=1799>Arrêt dans: 30 mn</option>
+		<option value=2099>Arrêt dans: 35 mn</option>
+		<option value=2399>Arrêt dans: 40 mn</option>
+		<option value=2699>Arrêt dans: 45 mn</option>
+		<option value=2999>Arrêt dans: 50 mn</option>
+		<option value=3299>Arrêt dans: 55 mn</option>
+		<option value=3599>Arrêt dans: 60 mn</option>
+	</select></center>
+	<center><select id="comboDistance" style='display:none;' onchange="closeCombos(this);">
+		<option selected="selected" value=0>Sélection de la distance:</option>
+		<option value=2000>Arrêt dans: 2 km</option>
+		<option value=5000>Arrêt dans: 5 km</option>
+		<option value=8000>Arrêt dans: 8 km</option>
+		<option value=10000>Arrêt dans: 10 km</option>
+		<option value=12000>Arrêt dans: 12 km</option>
+		<option value=15000>Arrêt dans: 15 km</option>
+		<option value=18000>Arrêt dans: 18 km</option>
+	</select></center>
+	<p style="text-align:center;"><canvas id="canvasChrono" onClick="openComboStopMode();"></canvas></p>
+ </td>
+ </tr>
+
+ <tr> <!-- Ligne 2 -->
+ <td style="text-align:right;">
+ <input type="image" id="up" src="./public/images/up.png" width="80" height="80" name="Submit" value="Up" onClick="clickSpeed(this);"></input>
+ </td>
+
+ <td style="text-align:center;">
+ <center><div id="message" class="txt" style="width:200px; height:15px; background:white; padding:7px; text-align:center;">Chargement en cours...</div></center>
+	<p align="center"><canvas id="canvasLcdChrono" style='display:none;'></canvas></p>
+ </td>
+
+ <td style="text-align:left;">
+ <input type="image" id="down" src="./public/images/down.png" width="80" height="80" name="Submit" value="Down" onClick="clickSpeed(this);"></input>
+ </td>
+ </tr>
+
+ <tr> <!-- Ligne 3 -->
+ <td style="text-align:center;">
+ <input type="image" id="power" src="./public/images/power-off.png" width="80" height="80" name="Submit" value="Power On" onClick="clickPower(this);"></input>
+ </td>
+
+ <td style="text-align:center;">
+ <input type="image" id="stop" src="./public/images/stop.png" width="150" height="150" name="Submit" value="Stop" onClick="clickStop(this);"></input>
+ </td>
+
+ <td style="text-align:center;">
+ <input type="image" id="pause" src="./public/images/pause.png" width="80" height="80" name="Submit" value="Pause On" onClick="clickPause(this);"></input>
+ </td>
+ </tr>
+ </tbody></table>
+</div>
+
+<!-- The speed bargraph -->
+<div id="speedBarGraph" class="modal">
+ <div class="modal-content">
+  <span class="close" onclick='closeSpeedBarGraph();'>&times;</span>
+  <h1>Custom Program</h1>
+  <table id="speedGraph"></table>
+  <div id="ticks">
+    <div class="tick" style="height: 59px;"><p>25 km/h</p></div>
+    <div class="tick" style="height: 59px;"><p>20 km/h</p></div>
+    <div class="tick" style="height: 59px;"><p>15 km/h</p></div>
+    <div class="tick" style="height: 59px;"><p>10 km/h</p></div>
+    <div class="tick" style="height: 59px;"><p> 5 km/h</p></div>
+  </div>
+ </div>
+</div>
+
+<!--  -->
+<div id="noSleep" style='display:none;'>
+ <video id="video" src="/public/images/small.webm" type='video/webm;codecs="vp8, vorbis"' height='5px' width='5px' controls muted autoplay loop></video>
+</div>
+
+<script src='/public/javaScripts/utils.js'></script>
+<script src='/public/javaScripts/settings.js'></script>
+<script src='/public/javaScripts/tween-min.js'></script>
+<script src='/public/javaScripts/steelseries-min.js'></script>
+<script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript">
+<!-- // Dessin de l'interface:
+var clock, speedo, chrono, lcd;
+var sock;
+function init(){
+	// Initialzing gauges:
+	clock=new steelseries.Clock('canvasClock',{
+		width: 201,
+		height: 201
+	});
+	clock.setFrameDesign(steelseries.FrameDesign.CHROME);
+	clock.setBackgroundColor(steelseries.BackgroundColor.BLUE);
+
+	chrono=new steelseries.StopWatch('canvasChrono',{
+		size: 201
+	});
+	chrono.setFrameDesign(steelseries.FrameDesign.CHROME);
+	chrono.setBackgroundColor(steelseries.BackgroundColor.BLUE);
+	chronoReset();
+
+	lcd=new steelseries.DisplaySingle('canvasLcdChrono',{
+		width: 180,
+		height: 19,
+		headerString: "durée restante:",
+		headerStringVisible: true,
+		unitString: "mn",
+		unitStringVisible: true,
+		detailStringVisible: false,
+		valuesNumeric: false
+	});
+	document.getElementById('comboTime').options.selectedIndex=0;
+
+	// Speedo:
+	// Define some sections
+	var sections=[steelseries.Section(0, 3.5, 'rgba(0, 0, 0, 0.5)'),
+		steelseries.Section(3.5, 10.0, 'rgba(0, 0, 220, 0.3)'),
+		steelseries.Section(10.0, 15.0, 'rgba(0, 220, 0, 0.3)'),
+		steelseries.Section(15.0, 20.0, 'rgba(220, 220, 0, 0.3)')],
+
+	// Define one area
+	areas=[steelseries.Section(20.0, 25.0, 'rgba(220, 0, 0, 0.3)')],
+
+	// Define value gradient for bargraph
+	valGrad=new steelseries.gradientWrapper(
+		0,
+		100,
+		[0, 0.33, 0.66, 0.85, 1],
+		[new steelseries.rgbaColor(0, 0, 200, 1),
+		new steelseries.rgbaColor(0, 200, 0, 1),
+		new steelseries.rgbaColor(200, 200, 0, 1),
+		new steelseries.rgbaColor(200, 0, 0, 1),
+		new steelseries.rgbaColor(200, 0, 0, 1)]);
+
+	speedo=new steelseries.Radial('canvasSpeedo',{
+		gaugeType: steelseries.GaugeType.TYPE4,
+		size: 301,
+		section: sections,
+		area: areas,
+		titleString: 'Vitesse: km\/h',
+		unitString: 'Distance: m',
+		threshold: 50,
+		lcdVisible: true,
+		lcdDecimals: 2,
+		useOdometer: true,
+		userLedVisible: false,
+		maxValue: 25
+	});
+	speedo.setFrameDesign(steelseries.FrameDesign.CHROME);
+	speedo.setBackgroundColor(steelseries.BackgroundColor.BLUE);
+	speedThreshold(0); speedo.setOdoValue(0);
+	setInterval(function(){
+		speedo.setOdoValue(speedo.getOdoValue()+speedo.getValue()/90);
+	}, 250);
+
+	doMessage('Chargement en cours...');
+	clearStopMode();
+
+	// Server Communication:
+	sock=io.connect();
+
+	sock.on('allowed', function(){
+		var el=document.getElementById("power"), s="./public/images/"+el.id;
+		//clignote(el, s+"-on.png", 1500, s+".png", 3000);
+		el.src="./public/images/"+el.id+"-on.png";
+		el.value="Power Off";
+		shutdown();
+	});
+	sock.on('denied', function(){
+		doMessage('Désolé: une autre console est déjà connectée !...','300px','38px');
+		if (!isPowerOff()) clickPower();
+	});
+	sock.on('initDefault', function(){
+		doMessage("Désolé: le matériel n'est pas connecté !...",'300px','38px');
+		if (!isPowerOff()) clickPower();
+	});
+	sock.on('speed', function(v){
+		speedo.setValueAnimated(v, speedo.getValue());
+		if(v>0){
+			//speedo.blinkUserLed(true);
+			chrono.start();
+		}else{	chrono.stop();
+			//speedo.blinkUserLed(false);
+			speedo.setUserLedOnOff(false);
+		}
+	});
+}
+
+function clickPower(el=document.getElementById("power")){
+	switch(el.value){
+	    case "Power On":
+		sock.emit('powerOn');
+		break;
+	    default:
+		var s="./public/images/"+el.id;
+		sock.emit('powerOff'); clickStop();
+		clignote(el, s+"-off.png", 500); clignote(el, s+"-off.png", 3000);
+		el.value="Power On";
+		shutdown(-1);
+}	}
+
+function clickStop(el=document.getElementById("stop")){
+	var s="./public/images/"+el.id, delay = 2500;
+	if(!isPowerOff(true) && isStopOff()){
+		el.value="Acknowledge Stop"; el.scr=s+"-on.png";
+		if(!isPowerOff()) clignote(el, s+"-off.png", 750, s+".png", 100);
+		clearTimeout(this.refreshDownCounterIntervalId);
+		sock.emit('speed', 0); clearStopMode();
+		speedo.setValueAnimated(0, speedo.getValue());
+		speedThreshold(0); setTimeout( 'speedo.setOdoValue(0)', delay );
+		chrono.stop(); setTimeout( 'chronoReset()', delay );
+		if(!isPauseOff()) clickPause();
+		setTimeout(function(e=el,i=s){
+			if(!isStopOff()) clignote(e, i+".png", 100);
+			e.value="Stop"; e.scr=i+".png";
+		}, delay);
+}	}
+
+function clickPause(el=document.getElementById("pause")){
+	if(!isPowerOff(true)){
+		var s="./public/images/"+el.id;
+		switch( el.value ){
+		    case "Pause On":
+			if (isStopOff()){
+				sock.emit('speed', 0); el.value="Pause Off";
+				clignote(el, s+"-on.png", 800, s+".png", 500);
+			} break;
+		    default:el.value="Pause On";
+			sock.emit('speed', speedThreshold());
+			clignote(el, s+".png", 800);
+}	}	}
+
+function clickSpeed(el){
+	if(!isPowerOff(true) && isStopOff()){
+		el.src="./public/images/"+el.id+"-on.png";
+		setTimeout( function(e=el){e.src="./public/images/"+e.id+".png";}, 200 );
+		if(el.id=="up")
+			speedThreshold(speedThreshold() + 0.5);
+		else	speedThreshold(speedThreshold() - 0.5);
+		if(isPauseOff())
+			sock.emit('speed', speedThreshold());
+}	}
+-->
+</script>
+</body></html>

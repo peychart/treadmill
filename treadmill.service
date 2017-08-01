@@ -1,0 +1,15 @@
+[Unit]
+Description=treadmill.js - making your environment variables rad
+Documentation=https://treadmill.peychart.homenet.org
+After=network.target
+
+[Service]
+Environment=NODE_PORT=3000
+Environment=NODE_HOSTNAME=0.0.0.0
+Type=simple
+User=root
+ExecStart=/usr/local/bin/nodejs /var/www/treadmill/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

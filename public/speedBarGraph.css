@@ -1,0 +1,111 @@
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: -20%;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: hidden; /* Enable scroll if needed */
+	background-color: rgb(0,0,0); /* Fallback color */
+	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+/* Modal Content/Box */
+.modal-content {
+	background-color: #fefefe;
+	margin: 15% auto; /* 15% from the top and centered */
+	padding: 20px;
+	border: 1px solid #888;
+	width: 80%; /* Could be more or less, depending on screen size */
+}
+/* The Close Button */
+.close {
+	color: #aaa;
+	float: right;
+	font-size: 20px;
+	font-weight: bold;
+}
+.close:hover,
+.close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
+}
+h1 {
+	font: bold 1em/0.85 Arial, sans-serif;
+	text-align: center;
+	letter-spacing: 1px;
+	margin: 1em -0.5em;
+	padding: 0 0.5em;
+}
+#speedGraph {
+	display: block; /* fixes layout wonkiness in FF1.5 */
+	position: relative; width: 604px; height: 305px;
+	margin: 1.1em 0 0; padding: 0;
+	background: #DDD url(images/fade-light.png) repeat-x;
+	border: 2px solid gray;
+	font: 9px Helvetica, Geneva, sans-serif;
+}
+#speedGraph tr, #speedGraph th, #speedGraph td {
+	position: absolute;
+	bottom: 0; width: 50px; z-index: 2;
+	margin: 0; padding: 0;
+	text-align: center;
+}
+#speedGraph thead tr {
+	left: 100%; top: 50%; bottom: auto;
+	margin: -2.5em 0 0 5em;
+}
+#speedGraph thead th {
+	width: 7.5em; height: auto;
+	padding: 0.5em 1em;
+}
+#speedGraph thead th.speed {
+	top: 0; left: 0;
+	border: 1px solid;
+}
+#speedGraph tbody tr {
+	height: 296px; padding-top: 2px;
+	border-right: 1px dotted #C4C4C4; color: #AAA;
+}
+#speedGraph #q0		{left: 0;}
+#speedGraph #q1		{left: 50px;}
+#speedGraph #q2		{left: 100px;}
+#speedGraph #q3		{left: 150px;}
+#speedGraph #q4		{left: 200px;}
+#speedGraph #q5		{left: 250px;}
+#speedGraph #q6		{left: 300px;}
+#speedGraph #q7		{left: 350px;}
+#speedGraph #q8		{left: 400px;}
+#speedGraph #q9		{left: 450px;}
+#speedGraph #q10	{left: 500px;}
+#speedGraph #q11	{left: 550px; border-right: none;}
+#speedGraph tbody th	{top: 302px; vertical-align: top;}
+#speedGraph .bar	{width: 48px; border: 1px solid; border-bottom: none; color: #000;}
+#speedGraph .bar p	{margin: 0px 0 0; padding: 0;}
+#speedGraph .speed {
+	left: 0px;
+	background: #9D9 url(images/fade-dark.png) repeat-x;
+	border-color: #CDC #9B9 #000 #BFB;
+}
+#speedGraph .speedprev {
+	left: 0px;
+	background: #350 url(images/fade-dark.png) repeat-x;
+	border-color: #CDC #9A9 #000 #BEB;
+}
+#ticks {
+	position: relative; top: -300px; left: 2px;
+	width: 596px; height: 300px; z-index: 1;
+	margin-bottom: -300px;
+	font: 9px Helvetica, Geneva, sans-serif;
+}
+#ticks .tick {
+	position: relative;
+	border-bottom: 1px solid #BBB;
+	width: 600px;
+}
+#ticks .tick p {
+	position: absolute;
+	left: 100%; top: -0.67em;
+	margin: 0 0 0 0.5em;
+}
