@@ -21,12 +21,10 @@ app.use( function(req, res, next) {
   res.setHeader( 'Content-Type', 'text/plain' );
   res.status(404).send( 'Page not found!' );
 } );
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Wiring-PI code:
 // see: https://github.com/WiringPi/WiringPi-Node/blob/master/DOCUMENTATION.md
-var DUMMY=true;			// DUMMY=true for no motor connected...
+var DUMMY = true;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
@@ -46,9 +44,8 @@ var init		= false;
 var setSpeedIntervalId	= 0;
 var powerOffIntervalId	= 0;
 var counterFD		= 0;
-var exec		= require( 'child_process' ).exec;
-var wpi			= require('wiring-pi');
-wpi.setup('wpi');
+var exec		= require('child_process').exec;
+var wpi			= require('wiring-pi'); wpi.setup('wpi');
 var initIntervalId	= setInterval(function(){
 	if(initHardware()){
 		console.log(Date()+': Hardware connected...');
@@ -58,7 +55,7 @@ var initIntervalId	= setInterval(function(){
 
 function initHardware(){
 	if(!DUMMY){
-		wpi.pinMode(powerPin, wpi.PWM_OUTPUT); wpi.pwmWrite(powerPin, 0);
+		wpi.pinMode(powerPin, wpi.OUTPUT); wpi.pwmWrite(powerPin, 0);
 		if(wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)		return false;
 		wpi.pwmWrite(motorPin, 0);
 		if((counterFD=wpi.mcp23017Setup(100, 0x20))<0)		// pin 15:17 to ground
@@ -165,5 +162,4 @@ io.sockets.on('connection', function(socket){
 		} clientsId.splice(clientsId.indexOf(socket.id), 1);
 	});
 });
-
 ////////////////////////////////////////////////////////////////////////////////

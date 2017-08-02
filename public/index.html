@@ -101,7 +101,7 @@
  </div>
 </div>
 
-<!--  -->
+<!-- Wake lock API like  -->
 <div id="noSleep" style='display:none;'>
  <video id="video" src="/public/images/small.webm" type='video/webm;codecs="vp8, vorbis"' height='5px' width='5px' controls muted autoplay loop></video>
 </div>
@@ -116,6 +116,7 @@
 var clock, speedo, chrono, lcd;
 var sock;
 function init(){
+	document.getElementById("video").pause();
 	// Initialzing gauges:
 	clock=new steelseries.Clock('canvasClock',{
 		width: 201,
@@ -196,7 +197,7 @@ function init(){
 		//clignote(el, s+"-on.png", 1500, s+".png", 3000);
 		el.src="./public/images/"+el.id+"-on.png";
 		el.value="Power Off";
-		shutdown();
+		shutdown(); document.getElementById("video").play();
 	});
 	sock.on('denied', function(){
 		doMessage('Désolé: une autre console est déjà connectée !...','300px','38px');
@@ -228,7 +229,7 @@ function clickPower(el=document.getElementById("power")){
 		sock.emit('powerOff'); clickStop();
 		clignote(el, s+"-off.png", 500); clignote(el, s+"-off.png", 3000);
 		el.value="Power On";
-		shutdown(-1);
+		shutdown(-1); document.getElementById("video").pause();
 }	}
 
 function clickStop(el=document.getElementById("stop")){
