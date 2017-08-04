@@ -11,7 +11,7 @@ function clearStopMode(){
 }
 
 function openComboStopMode(){
-	if(!isPowerOff(true)){
+	if(!isPowerOff(true)){ shutdown();
 		if(document.getElementById("canvasLcdChrono").style.display!=='none')
 			isStopOff(true);
 		else{	clearStopMode(); 
@@ -70,7 +70,7 @@ function downCounter(duree, type=0){
 	}, 1000);
 }
 
-function setProgram(){ openSpeedBarGraph(); }
+function setProgram(){openSpeedBarGraph();}
 
 function openSpeedBarGraph(){
 	initSpeedBarGraph();
@@ -91,7 +91,7 @@ function closeSpeedBarGraph(){
 	if(isPauseOff()) clickPause(); downCounter(v);
 }
 
-function setBarValue(el, incr){
+function setBarValue(el, incr){ shutdown();
 	el = (incr>0 ? el : el.parentElement.getElementsByTagName('td')[0]);
 	var v=el.firstChild.innerHTML; if(v=='') v='0'; v=parseInt(v);
 	switch(v){

@@ -229,7 +229,7 @@ function clickPower(el=document.getElementById("power")){
 		sock.emit('powerOff'); clickStop();
 		clignote(el, s+"-off.png", 500); clignote(el, s+"-off.png", 3000);
 		el.value="Power On";
-		shutdown(-1); document.getElementById("video").pause();
+		document.getElementById("video").pause();
 }	}
 
 function clickStop(el=document.getElementById("stop")){
@@ -254,12 +254,12 @@ function clickPause(el=document.getElementById("pause")){
 		var s="./public/images/"+el.id;
 		switch( el.value ){
 		    case "Pause On":
-			if (isStopOff()){
+			if (isStopOff()){ shutdown();
 				sock.emit('speed', 0); el.value="Pause Off";
 				clignote(el, s+"-on.png", 800, s+".png", 500);
 			} break;
 		    default:el.value="Pause On";
-			sock.emit('speed', speedThreshold());
+			sock.emit('speed', speedThreshold(speedThreshold()));
 			clignote(el, s+".png", 800);
 }	}	}
 

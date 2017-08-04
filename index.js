@@ -102,7 +102,7 @@ function shutdown(delay=0){
 			wpi.pwmWrite(powerPin, 1);
 			console.log(Date()+': bye!');
 			if(!DUMMY)
-				exec("/sbin/shutdown -h now", function(){console.log('Shutdown -r now...');});
+				exec("/sbin/shutdown -h now", function(){console.log('Shutdown -h now...');});
 			else	console.log('DUMMY mode: hardware reconnect...');
 	    }, delay?delay:powerOffDelay);
 }	}
