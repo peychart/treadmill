@@ -3,12 +3,28 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
 	<meta charset="utf-8">
 	<title>SpeedWalk I</title>
-	<link rel="stylesheet" type="text/css" href="/public/speedBarGraph.css">
+	<link rel="stylesheet" type="text/css" href="/public/css/style.css">
 </head>
-<body onload='init();' style="background-color:#000000">
+<body onload='init();'>
+
+<!-- The speed bargraph -->
+<div id="speedBarGraph" class="modal">
+ <div class="modal-content">
+  <span class="close" onclick='closeSpeedBarGraph();'>&times;</span>
+  <h1>Custom Program</h1>
+  <table id="speedGraph"></table>
+  <div id="ticks">
+    <div class="tick" style="height: 59px;"><p>25 km/h</p></div>
+    <div class="tick" style="height: 59px;"><p>20 km/h</p></div>
+    <div class="tick" style="height: 59px;"><p>15 km/h</p></div>
+    <div class="tick" style="height: 59px;"><p>10 km/h</p></div>
+    <div class="tick" style="height: 59px;"><p> 5 km/h</p></div>
+  </div>
+ </div>
+</div>
 
 <div id='interface'>
- <table style="border:0; width:100%; height:100%;"><tbody>
+<table style="border:0; width:100%; height:100%;"><tbody>
  <tr> <!-- Ligne 1 -->
  <td id="clock" style="text-align:center; vertical-align:bottom; width:25%; height:50%;">
 	<p style="text-align:center;"><canvas id="canvasClock" width="200" height="200"></canvas></p>
@@ -83,29 +99,15 @@
  </td>
  </tr>
  </tbody></table>
-</div>
-
-<!-- The speed bargraph -->
-<div id="speedBarGraph" class="modal">
- <div class="modal-content">
-  <span class="close" onclick='closeSpeedBarGraph();'>&times;</span>
-  <h1>Custom Program</h1>
-  <table id="speedGraph"></table>
-  <div id="ticks">
-    <div class="tick" style="height: 59px;"><p>25 km/h</p></div>
-    <div class="tick" style="height: 59px;"><p>20 km/h</p></div>
-    <div class="tick" style="height: 59px;"><p>15 km/h</p></div>
-    <div class="tick" style="height: 59px;"><p>10 km/h</p></div>
-    <div class="tick" style="height: 59px;"><p> 5 km/h</p></div>
-  </div>
- </div>
-</div>
 
 <!-- Wake lock API like  -->
 <div id="noSleep" style='display:none;'>
  <video id="video" src="/public/images/small.webm" type='video/webm;codecs="vp8, vorbis"' height='5px' width='5px' controls muted autoplay loop></video>
 </div>
 
+<div id='particles-js'></div>
+</div>
+<script src='/public/javaScripts/particles.min.js'></script>
 <script src='/public/javaScripts/utils.js'></script>
 <script src='/public/javaScripts/settings.js'></script>
 <script src='/public/javaScripts/tween-min.js'></script>
@@ -116,6 +118,8 @@
 var clock, speedo, chrono, lcd;
 var sock;
 function init(){
+	particlesJS.load('particles-js', '/public/assets/particles.json' );
+
 	document.getElementById("video").pause();
 	// Initialzing gauges:
 	clock=new steelseries.Clock('canvasClock',{

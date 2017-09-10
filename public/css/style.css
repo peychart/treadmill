@@ -1,14 +1,43 @@
+html,body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	background: #000000;
+/*	background-image: url('/public/images/as2.jpg');*/
+	background-size: cover;
+	background-position: 0% 0%;
+	background-repeat: no-repeat;
+	-webkit-overflow-scrolling: touch;
+	background-attachment: fixed;
+	overflow: hidden;
+}
+
+#particles-js {
+	width: 100%;
+	height: 100%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: -10;
+}
+
+input:focus {
+	outline:0;
+}
+
 .modal {
 	display: none; /* Hidden by default */
 	position: fixed; /* Stay in place */
 	z-index: 1; /* Sit on top */
 	left: 0;
-	top: -20%;
+	top: -10%;
 	width: 100%; /* Full width */
 	height: 100%; /* Full height */
 	overflow: hidden; /* Enable scroll if needed */
-	background-color: rgb(0,0,0); /* Fallback color */
-	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+	/*background-color: rgb(0,0,0); /* Fallback color */
+	background-color: rgba(0,0,0,0.0); /* Black w/ opacity */
 }
 /* Modal Content/Box */
 .modal-content {
@@ -16,7 +45,7 @@
 	margin: 15% auto; /* 15% from the top and centered */
 	padding: 20px;
 	border: 1px solid #888;
-	width: 80%; /* Could be more or less, depending on screen size */
+	width: 75%; /* Could be more or less, depending on screen size */
 }
 /* The Close Button */
 .close {
@@ -42,7 +71,7 @@ h1 {
 	display: block; /* fixes layout wonkiness in FF1.5 */
 	position: relative; width: 604px; height: 305px;
 	margin: 1.1em 0 0; padding: 0;
-	background: #DDD url(images/fade-light.png) repeat-x;
+	background: #DDD url(../images/fade-light.png) repeat-x;
 	border: 2px solid gray;
 	font: 9px Helvetica, Geneva, sans-serif;
 }
@@ -85,12 +114,12 @@ h1 {
 #speedGraph .bar p	{margin: 0px 0 0; padding: 0;}
 #speedGraph .speed {
 	left: 0px;
-	background: #9D9 url(images/fade-dark.png) repeat-x;
+	background: #9D9 url(../images/fade-dark.png) repeat-x;
 	border-color: #CDC #9B9 #000 #BFB;
 }
 #speedGraph .speedprev {
 	left: 0px;
-	background: #350 url(images/fade-dark.png) repeat-x;
+	background: #350 url(../images/fade-dark.png) repeat-x;
 	border-color: #CDC #9A9 #000 #BEB;
 }
 #ticks {

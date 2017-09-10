@@ -28,11 +28,11 @@ var DUMMY = true;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
-const powerPin		= 0;
+const powerPin		= 0;	// pin 11
 const powerOffDelay	= 900000;
-const motorPin		= 1;
-const inhibCounterPin	= 2;
-const resetCounterPin	= 3;
+const motorPin		= 1;	// pin 12
+const inhibCounterPin	= 2;	// pin 13
+const resetCounterPin	= 3;	// pin 15
 const speedMax		= 25;		// km/h
 const deltaSpeed	= 2;		// km/h per second...
 const formFactor	= 36*18;	// pulses per meter...
@@ -45,7 +45,7 @@ var setSpeedIntervalId	= 0;
 var powerOffIntervalId	= 0;
 var counterFD		= 0;
 var exec		= require('child_process').exec;
-var wpi			= require('wiring-pi'); wpi.setup('wpi');
+var wpi; if(!DUMMY){wpi	= require('wiring-pi'); wpi.setup('wpi');}
 var initIntervalId	= setInterval(function(){
 	if(initHardware()){
 		console.log(Date()+': Hardware connected...');
@@ -99,11 +99,11 @@ function shutdown(delay=0){
 	clearInterval(powerOffIntervalId);
 	if(delay>=0){
 	    powerOffIntervalId=setInterval(function(){
-			wpi.pwmWrite(powerPin, 1);
 			console.log(Date()+': bye!');
-			if(!DUMMY)
+			if(!DUMMY) {
+				wpi.pwmWrite(powerPin, 1);
 				exec("/sbin/shutdown -h now", function(){console.log('Shutdown -h now...');});
-			else	console.log('DUMMY mode: hardware reconnect...');
+			}else	console.log('DUMMY mode: hardware reconnect...');
 	    }, delay?delay:powerOffDelay);
 }	}
 ////////////////////////////////////////////////////////////////////////////////
