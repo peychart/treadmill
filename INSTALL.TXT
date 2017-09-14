@@ -2,7 +2,7 @@
 #This NodeJs application use this lib: http://wiki.sandaysoft.com/a/SteelSeries_Gauges
 sudo apt-get update
 sudo apt-get upgrade -y
-sudo apt-get install -y git wget
+sudo apt-get install -y git wget curl
 
 # Nodejs installation:
 sudo wget -O - https://raw.githubusercontent.com/audstanley/NodeJs-Raspberry-Pi/master/Install-Node.sh | bash; node -v;

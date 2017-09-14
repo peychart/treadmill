@@ -1,48 +1,65 @@
 <!DOCTYPE html>
 <html><head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-	<meta charset="utf-8">
-	<title>SpeedWalk I</title>
-	<link rel="stylesheet" type="text/css" href="/public/css/style.css">
+<meta http-equiv='content-type' content='text/html; charset=UTF-8'>
+	<meta charset='utf-8'>
+	<title>Treadmill 1.0</title>
+	<link rel='stylesheet' type='text/css' href='/public/css/style.css'>
 </head>
 <body onload='init();'>
 
 <!-- The speed bargraph -->
-<div id="speedBarGraph" class="modal">
- <div class="modal-content">
-  <span class="close" onclick='closeSpeedBarGraph();'>&times;</span>
+<div id='speedBarGraphs' class='modal'>
+ <div class='modal-content'>
+  <span class='close' onClick='closeSpeedGraph();'>&times;</span>
   <h1>Custom Program</h1>
-  <table id="speedGraph"></table>
-  <div id="ticks">
-    <div class="tick" style="height: 59px;"><p>25 km/h</p></div>
-    <div class="tick" style="height: 59px;"><p>20 km/h</p></div>
-    <div class="tick" style="height: 59px;"><p>15 km/h</p></div>
-    <div class="tick" style="height: 59px;"><p>10 km/h</p></div>
-    <div class="tick" style="height: 59px;"><p> 5 km/h</p></div>
-  </div>
+  <table style='border:0; width:100%; height:100%;'><tbody><tr>
+  <td><table id='speedGraph'></table>
+    <div id='ticks'>
+      <div class='tick' style='height: 59px;'><p>25 km/h</p></div>
+      <div class='tick' style='height: 59px;'><p>20 km/h</p></div>
+      <div class='tick' style='height: 59px;'><p>15 km/h</p></div>
+      <div class='tick' style='height: 59px;'><p>10 km/h</p></div>
+      <div class='tick' style='height: 59px;'><p> 5 km/h</p></div>
+    </div>
+  </td><td style='text-align:right; vertical-align:bottom; min-width:80px;'>
+    <table style='border:0; width:100%; height:100%;'><tbody>
+      <tr><td style='text-align:right; vertical-align:top;'>
+        <form class='programSelector'>
+          <input type='radio' name='prog' value='0' onMouseDown='loadSpeedGraph(this);' checked;>P1</input><br>
+        </form>
+      </td></tr>
+      <tr><td style='text-align:right; vertical-align:bottom;'><form>
+        <input type='button' id='save' value='save' hidden onClick='saveSpeedGraph();closeSpeedGraph();'></input>
+        <input type='button' id='add' value='add' onClick='isSpeedGraphModified();addSpeedGraph();'></input>
+        <input type='button' id='reset' value='reset' hidden onClick='loadSpeedGraph();'></input>
+        <input type='button' id='del' value='del' onClick='removeSpeedGraph();'></input>
+      </form></td></tr>
+    </tbody></table>
+  </td>
+  </tr></tbody></table>
  </div>
 </div>
 
 <div id='interface'>
-<table style="border:0; width:100%; height:100%;"><tbody>
+<table style='border:0; width:100%; height:100%;'><tbody>
  <tr> <!-- Ligne 1 -->
- <td id="clock" style="text-align:center; vertical-align:bottom; width:25%; height:50%;">
-	<p style="text-align:center;"><canvas id="canvasClock" width="200" height="200"></canvas></p>
+ <td id='clock' style='text-align:center; vertical-align:bottom; width:25%; height:50%;'>
+	<p style='text-align:center;'><canvas id='canvasClock' width='200' height='200'></canvas></p>
  </td>
 
- <td id="speed" style="text-align:center; vertical-align:middle; width:50%; height:50%;">
-	<p style="text-align:center;"><canvas id="canvasSpeedo" onClick="setCustom();">No canvas in your browser...sorry...</canvas></p>
+ <td id='speed' style='text-align:center; vertical-align:middle; width:50%; height:50%;'>
+	<p style='text-align:center;'><canvas id='canvasSpeedo' onClick='setCustom();'>No canvas in your browser...sorry...</canvas></p>
  </td>
 
- <td id="chrono" style="text-align:center; vertical-align:bottom; width:25%; height:50%;">
-	<center><select id="comboStopMode" style='display:none; text-align:center;' onchange="setStopMode(this);">
-		<option selected="selected" value=0>Sélection de programme.</option>
+ <td id='chrono' style='text-align:center; vertical-align:bottom; width:25%; height:50%;'>
+	<center><select id='comboStopMode' style='display:none; text-align:center;' onchange='setStopMode(this);'>
+		<option selected='selected' value=0>Sélection de programme.</option>
 		<option value=1>Arrêt sur durée,</option>
 		<option value=2>Arrêt sur distance,</option>
 		<option value=3>Choix d'un programme.</option>
 	</select></center>
-	<center><select id="comboTime" style='display:none;' onchange="closeCombos(this);">
-		<option selected="selected" value=0>Sélection de la durée:</option>
+	<center><select id='comboTime' style='display:none;' onchange='closeCombos(this);'>
+		<option selected='selected' value=0>Sélection de la durée:</option>
 		<option value=299>Arrêt dans: 5 mn</option>
 		<option value=599>Arrêt dans: 10 mn</option>
 		<option value=899>Arrêt dans: 15 mn</option>
@@ -56,8 +73,8 @@
 		<option value=3299>Arrêt dans: 55 mn</option>
 		<option value=3599>Arrêt dans: 60 mn</option>
 	</select></center>
-	<center><select id="comboDistance" style='display:none;' onchange="closeCombos(this);">
-		<option selected="selected" value=0>Sélection de la distance:</option>
+	<center><select id='comboDistance' style='display:none;' onchange='closeCombos(this);'>
+		<option selected='selected' value=0>Sélection de la distance:</option>
 		<option value=2000>Arrêt dans: 2 km</option>
 		<option value=5000>Arrêt dans: 5 km</option>
 		<option value=8000>Arrêt dans: 8 km</option>
@@ -66,43 +83,43 @@
 		<option value=15000>Arrêt dans: 15 km</option>
 		<option value=18000>Arrêt dans: 18 km</option>
 	</select></center>
-	<p style="text-align:center;"><canvas id="canvasChrono" onClick="openComboStopMode();"></canvas></p>
+	<p style='text-align:center;'><canvas id='canvasChrono' onClick='openComboStopMode();'></canvas></p>
  </td>
  </tr>
 
  <tr> <!-- Ligne 2 -->
- <td style="text-align:right;">
- <input type="image" id="up" src="./public/images/up.png" width="80" height="80" name="Submit" value="Up" onClick="clickSpeed(this);"></input>
+ <td style='text-align:right;'>
+ <input type='image' id='up' src='./public/images/up.png' width='80' height='80' name='Submit' value='Up' onClick='clickSpeed(this);'></input>
  </td>
 
- <td style="text-align:center;">
- <center><div id="message" class="txt" style="width:200px; height:15px; background:white; padding:7px; text-align:center;">Chargement en cours...</div></center>
-	<p align="center"><canvas id="canvasLcdChrono" style='display:none;'></canvas></p>
+ <td style='text-align:center;'>
+ <center><div id='message' class='txt' style='width:200px; height:15px; background:white; padding:7px; text-align:center;'>Chargement en cours...</div></center>
+	<p align='center'><canvas id='canvasLcdChrono' style='display:none;'></canvas></p>
  </td>
 
- <td style="text-align:left;">
- <input type="image" id="down" src="./public/images/down.png" width="80" height="80" name="Submit" value="Down" onClick="clickSpeed(this);"></input>
+ <td style='text-align:left;'>
+ <input type='image' id='down' src='./public/images/down.png' width='80' height='80' name='Submit' value='Down' onClick='clickSpeed(this);'></input>
  </td>
  </tr>
 
  <tr> <!-- Ligne 3 -->
- <td style="text-align:center;">
- <input type="image" id="power" src="./public/images/power-off.png" width="80" height="80" name="Submit" value="Power On" onClick="clickPower(this);"></input>
+ <td style='text-align:center;'>
+ <input type='image' id='power' src='./public/images/power-off.png' width='80' height='80' name='Submit' value='Power On' onClick='clickPower(this);'></input>
  </td>
 
- <td style="text-align:center;">
- <input type="image" id="stop" src="./public/images/stop.png" width="150" height="150" name="Submit" value="Stop" onClick="clickStop(this);"></input>
+ <td style='text-align:center;'>
+ <input type='image' id='stop' src='./public/images/stop.png' width='150' height='150' name='Submit' value='Stop' onClick='clickStop(this);'></input>
  </td>
 
- <td style="text-align:center;">
- <input type="image" id="pause" src="./public/images/pause.png" width="80" height="80" name="Submit" value="Pause On" onClick="clickPause(this);"></input>
+ <td style='text-align:center;'>
+ <input type='image' id='pause' src='./public/images/pause.png' width='80' height='80' name='Submit' value='Pause On' onClick='clickPause(this);'></input>
  </td>
  </tr>
  </tbody></table>
 
 <!-- Wake lock API like  -->
-<div id="noSleep" style='display:none;'>
- <video id="video" src="/public/images/small.webm" type='video/webm;codecs="vp8, vorbis"' height='5px' width='5px' controls muted autoplay loop></video>
+<div id='noSleep' style='display:none;'>
+ <video id='video' src='/public/images/small.webm' type='video/webm;codecs="vp8, vorbis"' height='5px' width='5px' controls muted autoplay loop></video>
 </div>
 
 <div id='particles-js'></div>
@@ -112,15 +129,15 @@
 <script src='/public/javaScripts/settings.js'></script>
 <script src='/public/javaScripts/tween-min.js'></script>
 <script src='/public/javaScripts/steelseries-min.js'></script>
-<script src="/socket.io/socket.io.js"></script>
-<script type="text/javascript">
+<script src='/socket.io/socket.io.js'></script>
+<script type='text/javascript'>
 <!-- // Dessin de l'interface:
 var clock, speedo, chrono, lcd;
 var sock;
 function init(){
-	particlesJS.load('particles-js', '/public/assets/particles.json' );
+	particlesJS.load('particles-js', '/public/assets/particles.json');
 
-	document.getElementById("video").pause();
+	document.getElementById('video').pause();
 	// Initialzing gauges:
 	clock=new steelseries.Clock('canvasClock',{
 		width: 201,
@@ -139,9 +156,9 @@ function init(){
 	lcd=new steelseries.DisplaySingle('canvasLcdChrono',{
 		width: 180,
 		height: 19,
-		headerString: "durée restante:",
+		headerString: 'durée restante:',
 		headerStringVisible: true,
-		unitString: "mn",
+		unitString: 'mn',
 		unitStringVisible: true,
 		detailStringVisible: false,
 		valuesNumeric: false
@@ -197,11 +214,11 @@ function init(){
 	sock=io.connect();
 
 	sock.on('allowed', function(){
-		var el=document.getElementById("power"), s="./public/images/"+el.id;
-		//clignote(el, s+"-on.png", 1500, s+".png", 3000);
-		el.src="./public/images/"+el.id+"-on.png";
-		el.value="Power Off";
-		shutdown(); document.getElementById("video").play();
+		var el=document.getElementById('power'), s='./public/images/'+el.id;
+		//clignote(el, s+'-on.png', 1500, s+'.png', 3000);
+		el.src='./public/images/'+el.id+'-on.png';
+		el.value='Power Off';
+		shutdown(); document.getElementById('video').play();
 	});
 	sock.on('denied', function(){
 		doMessage('Désolé: une autre console est déjà connectée !...','300px','38px');
@@ -216,62 +233,68 @@ function init(){
 		if(v>0){
 			//speedo.blinkUserLed(true);
 			chrono.start();
-		}else{	chrono.stop();
+		}else{	if(!isSpeedGraph() || !isPauseOff()) chrono.stop();
 			//speedo.blinkUserLed(false);
 			speedo.setUserLedOnOff(false);
 		}
 	});
 }
 
-function clickPower(el=document.getElementById("power")){
+function clickPower(el=document.getElementById('power')){
 	switch(el.value){
-	    case "Power On":
+	    case 'Power On':
 		sock.emit('powerOn');
 		break;
 	    default:
-		var s="./public/images/"+el.id;
+		var s='./public/images/'+el.id;
 		sock.emit('powerOff'); clickStop();
-		clignote(el, s+"-off.png", 500); clignote(el, s+"-off.png", 3000);
-		el.value="Power On";
-		document.getElementById("video").pause();
+		clignote(el, s+'-off.png', 500); clignote(el, s+'-off.png', 3000);
+		el.value='Power On';
+		document.getElementById('video').pause();
+        	document.getElementById('speedBarGraphs').style.display='none';
+        	document.getElementById('interface').style.display='block';
 }	}
 
-function clickStop(el=document.getElementById("stop")){
-	var s="./public/images/"+el.id, delay = 2500;
+function clickStop(el=document.getElementById('stop')){
+	var s='./public/images/'+el.id, delay=2500;
 	if(!isPowerOff(true) && isStopOff()){
-		el.value="Acknowledge Stop"; el.scr=s+"-on.png";
-		if(!isPowerOff()) clignote(el, s+"-off.png", 750, s+".png", 100);
+		el.value='Acknowledge Stop'; el.scr=s+'-on.png';
+		if(!isPowerOff()) clignote(el, s+'-off.png', 750, s+'.png', 100);
 		clearTimeout(this.refreshDownCounterIntervalId);
 		sock.emit('speed', 0); clearStopMode();
 		speedo.setValueAnimated(0, speedo.getValue());
-		speedThreshold(0); setTimeout( 'speedo.setOdoValue(0)', delay );
-		chrono.stop(); setTimeout( 'chronoReset()', delay );
+		speedThreshold(0); setTimeout('speedo.setOdoValue(0)', delay);
+		chrono.stop(); setTimeout('chronoReset()', delay);
 		if(!isPauseOff()) clickPause();
+		deleteSpeedGraph();
 		setTimeout(function(e=el,i=s){
-			if(!isStopOff()) clignote(e, i+".png", 100);
-			e.value="Stop"; e.scr=i+".png";
+			if(!isStopOff()) clignote(e, i+'.png', 100);
+			e.value='Stop'; e.scr=i+'.png';
 		}, delay);
 }	}
 
-function clickPause(el=document.getElementById("pause")){
+function clickPause(el=document.getElementById('pause')){
 	if(!isPowerOff(true)){
-		var s="./public/images/"+el.id;
-		switch( el.value ){
-		    case "Pause On":
+		var s='./public/images/'+el.id;
+		switch(el.value){
+		    case 'Pause On':
+			chrono.stop();
 			if (isStopOff()){ shutdown();
-				sock.emit('speed', 0); el.value="Pause Off";
-				clignote(el, s+"-on.png", 800, s+".png", 500);
+				sock.emit('speed', 0); el.value='Pause Off';
+				clignote(el, s+'-on.png', 800, s+'.png', 500);
 			} break;
-		    default:el.value="Pause On";
+		    default:el.value='Pause On';chrono.start();
+			if(isSpeedGraph()) chrono.start();
+			else if(!speedThreshold()) isSpeedUp(true);
 			sock.emit('speed', speedThreshold(speedThreshold()));
-			clignote(el, s+".png", 800);
+			clignote(el, s+'.png', 800);
 }	}	}
 
 function clickSpeed(el){
 	if(!isPowerOff(true) && isStopOff()){
-		el.src="./public/images/"+el.id+"-on.png";
-		setTimeout( function(e=el){e.src="./public/images/"+e.id+".png";}, 200 );
-		if(el.id=="up")
+		el.src='./public/images/'+el.id+'-on.png';
+		setTimeout(function(e=el){e.src='./public/images/'+e.id+'.png';}, 200);
+		if(el.id=='up')
 			speedThreshold(speedThreshold() + 0.5);
 		else	speedThreshold(speedThreshold() - 0.5);
 		if(isPauseOff())

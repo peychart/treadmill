@@ -3,9 +3,9 @@
 
 function counter(name, val=-1){
 //Usage: counter(counter_name, [init_value (disabled with 0)]); enabled, ++ on every call...
-	if(typeof this.count==='undefined') this.count = [];
+	if(typeof this.count==='undefined') this.count=[];
 	if(typeof this.count[name]==='undefined') this.count[name]=1;
-	return(val<0 ? this.count[name]++ : this.count[name]=val )
+	return(val<0 ? this.count[name]++ : this.count[name]=val)
 }
 
 var powerOffIntervalId=0;
@@ -25,12 +25,12 @@ function speedThreshold(v=-1){
 
 function chronoReset(){chrono.reset(); this.chronoOverflow=0; this.chronoOverflowIncr=false;}
 function getChronoMeasuredTime(){
-	var s = chrono.getMeasuredTime(), i = s.indexOf(":");
-	var v = parseInt(s.substr(0, i++))*60; v += parseInt(s.substr(i).substr(0, s.indexOf(":")));
-	if (v)	this.chronoOverflowIncr = true;
+	var s=chrono.getMeasuredTime(), i=s.indexOf(":");
+	var v=parseInt(s.substr(0, i++))*60; v +=parseInt(s.substr(i).substr(0, s.indexOf(":")));
+	if (v)	this.chronoOverflowIncr=true;
 	else{	if(this.chronoOverflowIncr){
-			this.chronoOverflow += 1800;
-			this.chronoOverflowIncr = false;
+			this.chronoOverflow +=1800;
+			this.chronoOverflowIncr=false;
 	}	}
 	return v+this.chronoOverflow;
 }
@@ -58,7 +58,7 @@ function flashDisplay(el, d=8000){
 				return document.getElementById('comboTime').style.display='none';
 			if(!document.getElementById('comboDistance').style.display==='none')
 				return document.getElementById('comboDistance').style.display='none';
-		} this.flashDisplayIntervalId = setInterval(function(e=el){e.style.display='none';}, d);
+		} this.flashDisplayIntervalId=setInterval(function(e=el){e.style.display='none';}, d);
 		return el.style.display='block';
 	} return el.style.display='none';
 }
@@ -82,6 +82,7 @@ function isState(id, value, blink, poff='-off.png'){
 	}return true;
 }
 function isPowerOff(blink=false){return(isState("power", "Power On", blink));}
+function isSpeedUp (blink=false){return(isState("up", "Up", blink, '.png'));}
 function isPauseOff(blink=false){return(isState("pause", "Pause On", blink));}
 function isStopOff (blink=false){return(isState("stop", "Stop", blink, '.png'));}
 

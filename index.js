@@ -3,6 +3,7 @@ var port	= process.env.NODE_PORT || 8080;
 var hostname	= process.env.NODE_HOSTNAME || '0.0.0.0';
 var app		= require('express')();
 var io		= require('socket.io').listen(app.listen(port, hostname));
+var fs		= require('fs');
 console.log( Date() + ': treadmill connected on ' + hostname + ":" + port + '...' );
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,6 +12,15 @@ app.get( '/', function(req, res) {
   console.log( Date() + ': connected to ' + req.url + '.' );
   res.sendFile( req.url, {root: require('path').join(__dirname, '/public' )} );
 } );
+
+// Push the training programs to the client:
+app.get( '/public/assets/programs.json', function( req, res ) {
+  fs.readFile( require('path').join(__dirname, '/public/assets/programs.json' ), function( err, data ){
+    res.writeHead( 200, {'Content-Type': 'text/html'} );
+    if (!err) res.write( data );
+    res.end();
+  });
+} );;
 
 app.get( '/public/*', function(req, res) {
   //console.log( Date() + ': connected to ' + req.url + '.' );
@@ -120,7 +130,7 @@ io.sockets.on('connection', function(socket){
 	var id;
 	clientsId.push(socket.id);
 
-	// on PowerOn:
+	// On PowerOn:
 	socket.on('powerOn', function(data){	// Un seul a la fois:
 		if( clientsId[0] == '' ) {	// libre...
 			clientsId.splice(clientsId.indexOf(socket.id), 1);
@@ -136,7 +146,7 @@ io.sockets.on('connection', function(socket){
 		}else 	socket.emit('denied');	// deja occupe!
 	});
 
-	// on PowerOff:
+	// On PowerOff:
 	socket.on('powerOff', function(data){
 		sendSpeed(socket, 0); clientsId.unshift('');
 		clearInterval(id);
@@ -148,18 +158,44 @@ io.sockets.on('connection', function(socket){
 		setSpeed(data);
 	}});
 
-	// on Pause:
+	// On Pause:
 	socket.on('pause', function(data){if(clientsId[0] == socket.id){
 		setSpeed(0);
 	}});
 
+	// On save program:
+	socket.on('savProg', function(data){if(clientsId[0] == socket.id){
+		fs.readFile(require('path').join(__dirname, '/public/assets/programs.json'), function(err, d){
+			if(!err || err.code==='ENOENT') try{
+				var o=[], b=JSON.parse(data);
+				if(!err) o=JSON.parse(d);
+				o[parseInt(Object.keys(b))]=b[Object.keys(b)];
+				writePrograms(o);
+			}catch(er){throw er;}
+			else throw(err);
+	});	}});
+
+	// On delete program:
+	socket.on('delProg', function(data){if(clientsId[0] == socket.id){
+		fs.readFile(require('path').join(__dirname, '/public/assets/programs.json'), function(err, d){
+			if(err) throw err;
+			try{	var o=JSON.parse(d); o.splice(parseInt(data),1);
+				writePrograms(o);
+			}catch(er){throw er;}
+	});	}});
+
 	// On disconnect:
 	socket.on('disconnect', function(){
-		if(clientsId[0] == socket.id) {
+		if(clientsId[0] == socket.id){
 			sendSpeed(socket, 0);
 			clientsId.unshift('');
 			shutdown();
 		} clientsId.splice(clientsId.indexOf(socket.id), 1);
+});	});
+
+function writePrograms(o){
+	if(o) fs.writeFile(require('path').join(__dirname, '/public/assets/programs.json'), JSON.stringify(o), function(err){
+		if(err) throw err;
 	});
-});
+}
 ////////////////////////////////////////////////////////////////////////////////
