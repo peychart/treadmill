@@ -1,6 +1,6 @@
 [Unit]
 Description=treadmill.js - making your environment variables rad
-Documentation=https://treadmill.peychart.homenet.org
+Documentation=https://treadmill.peychart.homelinuxserver.org
 After=network.target
 
 [Service]

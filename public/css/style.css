@@ -5,13 +5,13 @@ html,body {
 	height: 100%;
 	position: fixed;
 	background: #000000;
-/*	background-image: url('/public/images/as2.jpg');*/
+/*	background-image: url('/public/images/as2.jpg');
 	background-size: cover;
 	background-position: 0% 0%;
-	background-repeat: no-repeat;
-	-webkit-overflow-scrolling: touch;
 	background-attachment: fixed;
-	overflow: hidden;
+	background-repeat: no-repeat;*/
+	-webkit-overflow-scrolling: touch;
+	overflow: auto;
 }
 
 #particles-js {

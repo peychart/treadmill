@@ -7,8 +7,6 @@ A Node.js interface to control a Torpedo treadmill.
 Software:
 ---------
 
-A Node.js interface:
-
 ![](doc/images/index.png)
 
 ![](doc/images/programSetting.png)

@@ -4,33 +4,33 @@ var hostname	= process.env.NODE_HOSTNAME || '0.0.0.0';
 var app		= require('express')();
 var io		= require('socket.io').listen(app.listen(port, hostname));
 var fs		= require('fs');
-console.log( Date() + ': treadmill connected on ' + hostname + ":" + port + '...' );
+console.log(Date() + ': treadmill connected on ' + hostname + ":" + port + '...');
 
 ////////////////////////////////////////////////////////////////////////////////
 // Interface displaying:
-app.get( '/', function(req, res) {
-  console.log( Date() + ': connected to ' + req.url + '.' );
-  res.sendFile( req.url, {root: require('path').join(__dirname, '/public' )} );
-} );
+app.get('/', function(req, res) {
+  console.log(Date() + ': connected to ' + req.url + '.');
+  res.sendFile(req.url, {root: require('path').join(__dirname, '/public')});
+});
 
 // Push the training programs to the client:
-app.get( '/public/assets/programs.json', function( req, res ) {
-  fs.readFile( require('path').join(__dirname, '/public/assets/programs.json' ), function( err, data ){
-    res.writeHead( 200, {'Content-Type': 'text/html'} );
-    if (!err) res.write( data );
+app.get('/public/assets/programs.json', function(req, res) {
+  fs.readFile(require('path').join(__dirname, '/public/assets/programs.json'), function(err, data){
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    if(!err) res.write(data);
     res.end();
   });
-} );;
+});
 
-app.get( '/public/*', function(req, res) {
-  //console.log( Date() + ': connected to ' + req.url + '.' );
-  res.sendFile( req.url, {root: __dirname} );
-} );
+app.get('/public/*', function(req, res) {
+  //console.log(Date() + ': connected to ' + req.url + '.');
+  res.sendFile(req.url, {root: __dirname});
+});
 
-app.use( function(req, res, next) {
-  res.setHeader( 'Content-Type', 'text/plain' );
-  res.status(404).send( 'Page not found!' );
-} );
+app.use(function(req, res, next) {
+  res.setHeader('Content-Type', 'text/plain');
+  res.status(404).send('Page not found!');
+});
 ////////////////////////////////////////////////////////////////////////////////
 // Wiring-PI code:
 // see: https://github.com/WiringPi/WiringPi-Node/blob/master/DOCUMENTATION.md
@@ -64,26 +64,26 @@ var initIntervalId	= setInterval(function(){
 }, 5000);
 
 function initHardware(){
-	if(!DUMMY){
-		wpi.pinMode(powerPin, wpi.OUTPUT); wpi.pwmWrite(powerPin, 0);
-		if(wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)		return false;
-		wpi.pwmWrite(motorPin, 0);
-		if((counterFD=wpi.mcp23017Setup(100, 0x20))<0)		// pin 15:17 to ground
-									return false;
-		if(wiringPiI2CWriteReg8(counterFD, 0x0a, 0x80)<0)	// set 16 bits mode
-									return false;
-		if(wiringPiI2CWriteReg16(counterFD, 0x00, 0xffff)<0)	// set all pins as INPUT
-									return false;
-		if(wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0)	// set pullup on disconnected
-									return false;
-       		setInterval(function(){
-			wpi.pwmWrite(inhibCounterPin, 1);
-			currentSpeed = 0x10ff & wiringPiI2CReadReg16(counterFD, 0x12);
-               		currentSpeed = Math.round(v*3600/formFactor/100)/10;
-			wpi.pwmWrite(resetCounterPin, 1); wpi.pwmWrite(resetCounterPin, 0);
-			wpi.pwmWrite(inhibCounterPin, 0);
-       		}, 1000);
-	} return true;
+  if(!DUMMY){
+	wpi.pinMode(powerPin, wpi.OUTPUT); wpi.pwmWrite(powerPin, 0);
+	if(wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)		return false;
+	wpi.pwmWrite(motorPin, 0);
+	if((counterFD=wpi.mcp23017Setup(100, 0x20))<0)		// pin 15:17 to ground
+								return false;
+	if(wiringPiI2CWriteReg8(counterFD, 0x0a, 0x80)<0)	// set 16 bits mode
+								return false;
+	if(wiringPiI2CWriteReg16(counterFD, 0x00, 0xffff)<0)	// set all pins as INPUT
+								return false;
+	if(wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0)	// set pullup on disconnected
+								return false;
+       	setInterval(function(){
+		wpi.pwmWrite(inhibCounterPin, 1);
+		currentSpeed = 0x10ff & wiringPiI2CReadReg16(counterFD, 0x12);
+              		currentSpeed = Math.round(v*3600/formFactor/100)/10;
+		wpi.pwmWrite(resetCounterPin, 1); wpi.pwmWrite(resetCounterPin, 0);
+		wpi.pwmWrite(inhibCounterPin, 0);
+	}, 1000);
+  } return true;
 }
 
 function setSpeed(v){
@@ -108,13 +108,13 @@ function setSpeed(v){
 function shutdown(delay=0){
 	clearInterval(powerOffIntervalId);
 	if(delay>=0){
-	    powerOffIntervalId=setInterval(function(){
+		powerOffIntervalId=setInterval(function(){
 			console.log(Date()+': bye!');
 			if(!DUMMY) {
 				wpi.pwmWrite(powerPin, 1);
 				exec("/sbin/shutdown -h now", function(){console.log('Shutdown -h now...');});
 			}else	console.log('DUMMY mode: hardware reconnect...');
-	    }, delay?delay:powerOffDelay);
+		}, delay?delay:powerOffDelay);
 }	}
 ////////////////////////////////////////////////////////////////////////////////
 // Client/server communication :
@@ -132,7 +132,7 @@ io.sockets.on('connection', function(socket){
 
 	// On PowerOn:
 	socket.on('powerOn', function(data){	// Un seul a la fois:
-		if( clientsId[0] == '' ) {	// libre...
+		if(clientsId[0] == '') {	// libre...
 			clientsId.splice(clientsId.indexOf(socket.id), 1);
 			clientsId[0] = socket.id;
 			socket.emit('allowed');
@@ -147,11 +147,11 @@ io.sockets.on('connection', function(socket){
 	});
 
 	// On PowerOff:
-	socket.on('powerOff', function(data){
+	socket.on('powerOff', function(data){if(clientsId[0] == socket.id){
 		sendSpeed(socket, 0); clientsId.unshift('');
 		clearInterval(id);
 		shutdown();
-	});
+	}});
 
 	// Speed management:
 	socket.on('speed', function(data){if(clientsId[0] == socket.id){
