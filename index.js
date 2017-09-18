@@ -38,7 +38,8 @@ var DUMMY = true;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
-const powerPin		= 0;	// pin 11
+const powerPin1		= 0;	// pin 11 (relay~1mn)
+const powerPin2		= 7;	// pin 7
 const powerOffDelay	= 900000;
 const motorPin		= 1;	// pin 12
 const inhibCounterPin	= 2;	// pin 13
@@ -65,7 +66,8 @@ var initIntervalId	= setInterval(function(){
 
 function initHardware(){
   if(!DUMMY){
-	wpi.pinMode(powerPin, wpi.OUTPUT); wpi.pwmWrite(powerPin, 0);
+	wpi.pinMode(powerPin1, wpi.OUTPUT); wpi.pwmWrite(powerPin1, 0);
+	wpi.pinMode(powerPin2, wpi.OUTPUT); wpi.pwmWrite(powerPin2, 1);
 	if(wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)		return false;
 	wpi.pwmWrite(motorPin, 0);
 	if((counterFD=wpi.mcp23017Setup(100, 0x20))<0)		// pin 15:17 to ground
@@ -111,8 +113,10 @@ function shutdown(delay=0){
 		powerOffIntervalId=setInterval(function(){
 			console.log(Date()+': bye!');
 			if(!DUMMY) {
-				wpi.pwmWrite(powerPin, 1);
+				wpi.pwmWrite(powerPin1, 1);
 				exec("/sbin/shutdown -h now", function(){console.log('Shutdown -h now...');});
+				wpi.pwmWrite(powerPin1, 0);
+				wpi.pwmWrite(powerPin2, 0);
 			}else	console.log('DUMMY mode: hardware reconnect...');
 		}, delay?delay:powerOffDelay);
 }	}
