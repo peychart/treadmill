@@ -29,4 +29,3 @@ Hardware:
 * 1 infrared sensor, ![](doc/images/infraredSensor.jpg)
 * one timed relay, resistors, 2N2222 and a few small components... ![](doc/images/timedRelay.jpg)
 * ![](doc/images/alim.jpg)
-
