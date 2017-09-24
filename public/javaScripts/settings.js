@@ -54,7 +54,7 @@ function residual(v, s){
 			document.getElementById('speedGraph').firstChild.childNodes[i-1].getElementsByTagName('td')[0].className='speedprev bar';
 		if(speedThreshold()!=vv[i] && isPauseOff())
 			{speedThreshold(vv[i]+0.5); if(isPauseOff()) clickSpeed(document.getElementById('down'));}
-		s=(v<60? '': Math.trunc(v/60)+'mn:')+('0'+(v%60)).slice(-2)+'s (dans '+(r<60? r+'s: ':Math.trunc(r/60)+'mn: ')+(s? s+'km/h)': 'pause)');
+		s=(v<60? '': Math.trunc(v/60)+'mn:')+('0'+(v%60)).slice(-2)+'s (dans '+(r<60? r+'s: ':Math.trunc(r/60)+'mn: ')+(s>0? s+'km/h)': 'pause)');
 	} s +=' '.repeat((WIDTH-s.length)/2);
 	lcd.setValue(s);
 	return v;
