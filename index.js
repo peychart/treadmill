@@ -65,11 +65,10 @@ var initIntervalId	= setInterval(function(){
 }, 5000);
 
 function initHardware(){
-  if(!DUMMY){
-	wpi.pinMode(powerPin1, wpi.OUTPUT); wpi.pwmWrite(powerPin1, 0);
-	wpi.pinMode(powerPin2, wpi.OUTPUT); wpi.pwmWrite(powerPin2, 1);
-	if(wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)		return false;
-	wpi.pwmWrite(motorPin, 0);
+ if(!DUMMY){
+	if(wpi.pinMode(powerPin1, wpi.OUTPUT)<0 || wpi.pinMode(powerPin2, wpi.OUTPUT)<0
+		|| wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)	return false;
+	wpi.pwmWrite(motorPin, 0); wpi.pwmWrite(powerPin2, 1); wpi.pwmWrite(powerPin1, 0); // Power On...
 	if((counterFD=wpi.mcp23017Setup(100, 0x20))<0)		// pin 15:17 to ground
 								return false;
 	if(wiringPiI2CWriteReg8(counterFD, 0x0a, 0x80)<0)	// set 16 bits mode
@@ -81,11 +80,11 @@ function initHardware(){
        	setInterval(function(){
 		wpi.pwmWrite(inhibCounterPin, 1);
 		currentSpeed = 0x10ff & wiringPiI2CReadReg16(counterFD, 0x12);
-              		currentSpeed = Math.round(v*3600/formFactor/100)/10;
+              	currentSpeed = Math.round(v*3600/formFactor/100)/10;
 		wpi.pwmWrite(resetCounterPin, 1); wpi.pwmWrite(resetCounterPin, 0);
 		wpi.pwmWrite(inhibCounterPin, 0);
 	}, 1000);
-  } return true;
+ } return true;
 }
 
 function setSpeed(v){
@@ -97,12 +96,12 @@ function setSpeed(v){
 				var speed, delta=v-currentSpeed, sign=Math.sign(delta);
 				delta*=sign; delta=sign*(delta > deltaMax ? deltaMax : delta);
 				speed = Math.round((currentSpeed+delta)*10)/10;
-				if(DUMMY)
-					currentSpeed = speed;
-				else	wpi.pwmWrite(motorPin, Math.round(speed*1024/speedMax));
-			}else{	if(DUMMY)
-					currentSpeed=0;
-				else	wpi.pwmWrite(motorPin, 0);
+				if(!DUMMY)
+					wpi.pwmWrite(motorPin, Math.round(speed*1024/speedMax));
+				else	currentSpeed = speed;
+			}else{	if(!DUMMY)
+					wpi.pwmWrite(motorPin, 0);
+				else	currentSpeed=0;
 		}	}
 	}, speedPeriod);
 }
@@ -113,10 +112,9 @@ function shutdown(delay=0){
 		powerOffIntervalId=setInterval(function(){
 			console.log(Date()+': bye!');
 			if(!DUMMY) {
-				wpi.pwmWrite(powerPin1, 1);
+				wpi.pwmWrite(powerPin1, 1);	// Power 1 mn...
 				exec("/sbin/shutdown -h now", function(){console.log('Shutdown -h now...');});
-				wpi.pwmWrite(powerPin1, 0);
-				wpi.pwmWrite(powerPin2, 0);
+				wpi.pwmWrite(powerPin2, 0); wpi.pwmWrite(powerPin1, 0);	// Power Off
 			}else	console.log('DUMMY mode: hardware reconnect...');
 		}, delay?delay:powerOffDelay);
 }	}
