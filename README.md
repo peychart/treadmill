@@ -27,5 +27,4 @@ Hardware:
 * 1 MCP23017 and Expander HAT Board, ![](doc/images/mcp23017HatBoard.jpg)
 * 1 SN74HC4040N, ![](doc/images/SN74HC4040N.jpg)
 * 1 infrared sensor, ![](doc/images/infraredSensor.jpg)
-* one timed relay, resistors, 2N2222 and a few small components... ![](doc/images/timedRelay.jpg)
-* ![](doc/images/alim.jpg)
+* one relay and a few small components... ![](doc/images/alim.jpg)

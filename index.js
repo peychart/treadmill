@@ -38,8 +38,7 @@ var DUMMY = true;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
-const powerPin1		= 0;	// pin 11 (relay~1mn)
-const powerPin2		= 7;	// pin 7
+const powerPin		= 0;	// pin 11 (relay~1mn)
 const powerOffDelay	= 900000;
 const motorPin		= 1;	// pin 12
 const inhibCounterPin	= 2;	// pin 13
@@ -61,14 +60,14 @@ var initIntervalId	= setInterval(function(){
 	if(initHardware()){
 		console.log(Date()+': Hardware connected...');
 		init=true; clearInterval(initIntervalId);
-	} shutdown();
+	} resetShutdown();
 }, 5000);
 
 function initHardware(){
  if(!DUMMY){
-	if(wpi.pinMode(powerPin1, wpi.OUTPUT)<0 || wpi.pinMode(powerPin2, wpi.OUTPUT)<0
+	if(wpi.pinMode(powerPin, wpi.OUTPUT)<0
 		|| wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)	return false;
-	wpi.pwmWrite(motorPin, 0); wpi.pwmWrite(powerPin2, 1); wpi.pwmWrite(powerPin1, 0); // Power On...
+	wpi.pwmWrite(powerPin, 1); wpi.pwmWrite(motorPin, 0);	// Power On...
 	if((counterFD=wpi.mcp23017Setup(100, 0x20))<0)		// pin 15:17 to ground
 								return false;
 	if(wiringPiI2CWriteReg8(counterFD, 0x0a, 0x80)<0)	// set 16 bits mode
@@ -106,15 +105,14 @@ function setSpeed(v){
 	}, speedPeriod);
 }
 
-function shutdown(delay=0){
+function resetShutdown(delay=0){
 	clearInterval(powerOffIntervalId);
 	if(delay>=0){
 		powerOffIntervalId=setInterval(function(){
 			console.log(Date()+': bye!');
 			if(!DUMMY) {
-				wpi.pwmWrite(powerPin1, 1);	// Power 1 mn...
+				wpi.pwmWrite(powerPin, 0);	// Power off-1 mn...
 				exec("/sbin/shutdown -h now", function(){console.log('Shutdown -h now...');});
-				wpi.pwmWrite(powerPin2, 0); wpi.pwmWrite(powerPin1, 0);	// Power Off
 			}else	console.log('DUMMY mode: hardware reconnect...');
 		}, delay?delay:powerOffDelay);
 }	}
@@ -144,7 +142,7 @@ io.sockets.on('connection', function(socket){
 					clearInterval(id);
 				else	socket.emit('initDefault');
 			}, 5000);
-			shutdown(-1);
+			resetShutdown(-1);
 		}else 	socket.emit('denied');	// deja occupe!
 	});
 
@@ -152,7 +150,7 @@ io.sockets.on('connection', function(socket){
 	socket.on('powerOff', function(data){if(clientsId[0] == socket.id){
 		sendSpeed(socket, 0); clientsId.unshift('');
 		clearInterval(id);
-		shutdown();
+		resetShutdown();
 	}});
 
 	// Speed management:
@@ -191,7 +189,7 @@ io.sockets.on('connection', function(socket){
 		if(clientsId[0] == socket.id){
 			sendSpeed(socket, 0);
 			clientsId.unshift('');
-			shutdown();
+			resetShutdown();
 		} clientsId.splice(clientsId.indexOf(socket.id), 1);
 });	});
 
