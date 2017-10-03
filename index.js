@@ -41,7 +41,7 @@ var DUMMY = true;		// DUMMY=true for no motor connected...
 const powerPin		= 0;	// pin 11 (relay~1mn)
 const powerOffDelay	= 900000;
 const motorPin		= 1;	// pin 12
-const inhibCounterPin	= 2;	// pin 13
+const enableCounterPin	= 2;	// pin 13
 const resetCounterPin	= 3;	// pin 15
 const speedMax		= 25;		// km/h
 const deltaSpeed	= 2;		// km/h per second...
@@ -77,11 +77,11 @@ function initHardware(){
 	if(wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0)	// set pullup on disconnected
 								return false;
        	setInterval(function(){
-		wpi.pwmWrite(inhibCounterPin, 1);
+		wpi.pwmWrite(enableCounterPin, 0);
 		currentSpeed = 0x10ff & wiringPiI2CReadReg16(counterFD, 0x12);
               	currentSpeed = Math.round(v*3600/formFactor/100)/10;
 		wpi.pwmWrite(resetCounterPin, 1); wpi.pwmWrite(resetCounterPin, 0);
-		wpi.pwmWrite(inhibCounterPin, 0);
+		wpi.pwmWrite(enableCounterPin, 1);
 	}, 1000);
  } return true;
 }
