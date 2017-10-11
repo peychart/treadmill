@@ -38,7 +38,7 @@ var DUMMY = true;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
-const powerPin		= 0;	// pin 11 (relay~1mn)
+const powerPin		= 7;	// pin 11 (relay~1mn)
 const powerOffDelay	= 900000;
 const motorPin		= 1;	// pin 12
 const enableCounterPin	= 2;	// pin 13
@@ -56,32 +56,37 @@ var powerOffIntervalId	= 0;
 var counterFD		= 0;
 var exec		= require('child_process').exec;
 var wpi; if(!DUMMY){wpi	= require('wiring-pi'); wpi.setup('wpi');}
-var initIntervalId	= setInterval(function(){
+var powerOn		= /*setInterval(*/function(){
 	if(initHardware()){
 		console.log(Date()+': Hardware connected...');
-		init=true; clearInterval(initIntervalId);
+		init=true; clearInterval(powerOn);
 	} resetShutdown();
-}, 5000);
+	return init;
+}/*, 5000)*/; powerOn = powerOn();
 
 function initHardware(){
  if(!DUMMY){
+	if((counterFD=wpi.mcp23017Setup(65, 0x20))<0)		// pin 15:17 to ground=0x20
+								return false;
+console.log( 'counterFD=' + counterFD );
+	if(wpi.wiringPiI2CWriteReg8(counterFD, 0x0a, 0x80)<0)	// set 16 bits mode
+								return false;
+	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x00, 0xffff)<0)// set all pins as INPUT
+								return false;
+	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0)// set pullup on 4 disconnected HSBits
+								return false;
 	if(wpi.pinMode(powerPin, wpi.OUTPUT)<0
 		|| wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)	return false;
-	wpi.pwmWrite(powerPin, 1); wpi.pwmWrite(motorPin, 0);	// Power On...
-	if((counterFD=wpi.mcp23017Setup(100, 0x20))<0)		// pin 15:17 to ground
-								return false;
-	if(wiringPiI2CWriteReg8(counterFD, 0x0a, 0x80)<0)	// set 16 bits mode
-								return false;
-	if(wiringPiI2CWriteReg16(counterFD, 0x00, 0xffff)<0)	// set all pins as INPUT
-								return false;
-	if(wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0)	// set pullup on disconnected
-								return false;
+	wpi.pwmWrite(motorPin, 0); wpi.digitalWrite(powerPin, 0); // Power On...
        	setInterval(function(){
-		wpi.pwmWrite(enableCounterPin, 0);
-		currentSpeed = 0x10ff & wiringPiI2CReadReg16(counterFD, 0x12);
-              	currentSpeed = Math.round(v*3600/formFactor/100)/10;
-		wpi.pwmWrite(resetCounterPin, 1); wpi.pwmWrite(resetCounterPin, 0);
-		wpi.pwmWrite(enableCounterPin, 1);
+		if(powerOn) wpi.digitalWrite(powerPin, 1);
+		setTimeout(function(){wpi.digitalWrite(powerPin, 0);}, 500);
+
+		wpi.digitalWrite(enableCounterPin, 0);
+		currentSpeed = 0x10ff & wpi.wiringPiI2CReadReg16(counterFD, 0x12);
+		wpi.digitalWrite(resetCounterPin, 0);
+              	currentSpeed = Math.round(currentSpeed*3600/formFactor/100)/10;
+		wpi.digitalWrite(resetCounterPin, 1); wpi.digitalWrite(enableCounterPin, 1);
 	}, 1000);
  } return true;
 }
@@ -111,7 +116,7 @@ function resetShutdown(delay=0){
 		powerOffIntervalId=setInterval(function(){
 			console.log(Date()+': bye!');
 			if(!DUMMY) {
-				wpi.pwmWrite(powerPin, 0);	// Power off-1 mn...
+				powerOn=false;	// Power off-1 mn...
 				exec("/sbin/shutdown -h now", function(){console.log('Shutdown -h now...');});
 			}else	console.log('DUMMY mode: hardware reconnect...');
 		}, delay?delay:powerOffDelay);
