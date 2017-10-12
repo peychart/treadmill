@@ -11,11 +11,11 @@ Software:
 
 ![](doc/images/programSetting.png)
 
-* click on the chrono to select a program,
+* click on the chrono to select a program (duration, distance or custom program),
 * close the popup of the bargraph to launch the program,
 * a program can be modified or replaced during a run,
-* click on a bar to grow it,
-* click below the bar to make it decrease,
+* click on a bar to grow it (increase the speed),
+* click below the bar to reduce it (decrease the speed),
 * other custom programs can be created at will.
 
 Hardware:

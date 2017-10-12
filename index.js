@@ -56,34 +56,39 @@ var powerOffIntervalId	= 0;
 var counterFD		= 0;
 var exec		= require('child_process').exec;
 var wpi; if(!DUMMY){wpi	= require('wiring-pi'); wpi.setup('wpi');}
-var powerOn		= /*setInterval(*/function(){
-	if(initHardware()){
+var powerOn		= setInterval(function(){
+	resetShutdown();
+	if( (init=initHardware()) ){
 		console.log(Date()+': Hardware connected...');
-		init=true; clearInterval(powerOn);
-	} resetShutdown();
-	return init;
-}/*, 5000)*/; powerOn = powerOn();
+		clearInterval(powerOn); powerOn=true;
+	}
+}, 5000);
 
 function initHardware(){
  if(!DUMMY){
-	if((counterFD=wpi.mcp23017Setup(65, 0x20))<0)		// pin 15:17 to ground=0x20
-								return false;
-console.log( 'counterFD=' + counterFD );
-	if(wpi.wiringPiI2CWriteReg8(counterFD, 0x0a, 0x80)<0)	// set 16 bits mode
-								return false;
-	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x00, 0xffff)<0)// set all pins as INPUT
-								return false;
-	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0)// set pullup on 4 disconnected HSBits
-								return false;
 	if(wpi.pinMode(powerPin, wpi.OUTPUT)<0
 		|| wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)	return false;
-	wpi.pwmWrite(motorPin, 0); wpi.digitalWrite(powerPin, 0); // Power On...
+	wpi.pwmWrite(motorPin, 0); wpi.digitalWrite(powerPin, 0);
+
+	// MCP23017 setup:
+	if((counterFD=wpi.wiringPiI2CSetup(0x20))<0)		// pin 15:17 to ground=0x20
+								return false;
+	if(wpi.wiringPiI2CWriteReg8(counterFD, 0x0a, 0x20)<0){	// set 16 bits mode
+						wiringPiI2CClose(counterFD);
+								return false;}
+	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x00, 0xffff)<0){// set all pins as INPUT
+						wiringPiI2CClose(counterFD);
+								return false;}
+	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0	// set pullup on 4 disconnected HSBits
+	|| wpi.wiringPiI2CWriteReg16(counterFD, 0x01, 0xf000)<0){// and set them to 0
+						wiringPiI2CClose(counterFD);
+								return false;}
        	setInterval(function(){
 		if(powerOn) wpi.digitalWrite(powerPin, 1);
 		setTimeout(function(){wpi.digitalWrite(powerPin, 0);}, 500);
 
 		wpi.digitalWrite(enableCounterPin, 0);
-		currentSpeed = 0x10ff & wpi.wiringPiI2CReadReg16(counterFD, 0x12);
+		currentSpeed = /*0x0fff & */wpi.wiringPiI2CReadReg16(counterFD, 0x12);
 		wpi.digitalWrite(resetCounterPin, 0);
               	currentSpeed = Math.round(currentSpeed*3600/formFactor/100)/10;
 		wpi.digitalWrite(resetCounterPin, 1); wpi.digitalWrite(enableCounterPin, 1);
