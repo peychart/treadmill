@@ -34,7 +34,7 @@ app.use(function(req, res, next) {
 ////////////////////////////////////////////////////////////////////////////////
 // Wiring-PI code:
 // see: https://github.com/WiringPi/WiringPi-Node/blob/master/DOCUMENTATION.md
-var DUMMY = false;		// DUMMY=true for no motor connected...
+var DUMMY = true;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
