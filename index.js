@@ -34,7 +34,7 @@ app.use(function(req, res, next) {
 ////////////////////////////////////////////////////////////////////////////////
 // Wiring-PI code:
 // see: https://github.com/WiringPi/WiringPi-Node/blob/master/DOCUMENTATION.md
-var DUMMY = true;		// DUMMY=true for no motor connected...
+var DUMMY = false;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
@@ -80,20 +80,31 @@ function initHardware(){
 						wiringPiI2CClose(counterFD);
 								return false;}
 	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0	// set pullup on 4 disconnected HSBits
-	|| wpi.wiringPiI2CWriteReg16(counterFD, 0x01, 0xf000)<0){// and set them to 0
+	|| wpi.wiringPiI2CWriteReg16(counterFD, 0x01, 0xf000)<0){// and convert them to 0
 						wiringPiI2CClose(counterFD);
 								return false;}
-       	setInterval(function(){
-		if(powerOn) wpi.digitalWrite(powerPin, 1);
-		setTimeout(function(){wpi.digitalWrite(powerPin, 0);}, 500);
-
-		wpi.digitalWrite(enableCounterPin, 0);
-		currentSpeed = /*0x0fff & */wpi.wiringPiI2CReadReg16(counterFD, 0x12);
-		wpi.digitalWrite(resetCounterPin, 0);
-              	currentSpeed = Math.round(currentSpeed*3600/formFactor/100)/10;
-		wpi.digitalWrite(resetCounterPin, 1); wpi.digitalWrite(enableCounterPin, 1);
-	}, 1000);
+	getSpeed();
  } return true;
+}
+
+function getSpeed(period=10){
+	if(powerOn) wpi.digitalWrite(powerPin, 1);
+	setTimeout(function(){wpi.digitalWrite(powerPin, 0);}, 1<<period>>1);
+
+	wpi.digitalWrite(enableCounterPin, 0);
+	var count= /*0x0fff & */wpi.wiringPiI2CReadReg16(counterFD, 0x12); // pulses/meters/(1<<period)ms
+	wpi.digitalWrite(resetCounterPin, 0); wpi.digitalWrite(resetCounterPin, 1);
+	wpi.digitalWrite(enableCounterPin, 1);
+	//				->m		/s	    /h	 -xx.y-	== km/h
+	//currentSpeed = Math.round(count/formFactor /(1<<period) *3600 *10)/10;
+	currentSpeed = ((count*36000/formFactor+500)>>period)/10;
+
+	// Ajust period of the speed measurement to prevent overflow of the counter (12bits):
+	if(count>(1<<15)/10 && periode>8)	// more than 80% of (1<<12) -> periode/2
+		period--;
+	else if(period<10 && count<(1<<13)/10)	// less than 20% of (1<<12) -> periode*2
+		period++;
+	setTimeout(function(){getSpeed(period);}, 1<<period);
 }
 
 function setSpeed(v){
@@ -104,7 +115,8 @@ function setSpeed(v){
 		else{	if(v && init){
 				var speed, delta=v-currentSpeed, sign=Math.sign(delta);
 				delta*=sign; delta=sign*(delta > deltaMax ? deltaMax : delta);
-				speed = Math.round((currentSpeed+delta)*10)/10;
+				//speed = Math.round((currentSpeed+delta)*10)/10;
+				speed = currentSpeed+delta;
 				if(!DUMMY)
 					wpi.pwmWrite(motorPin, Math.round(speed*1024/speedMax));
 				else	currentSpeed = speed;
@@ -131,9 +143,9 @@ function resetShutdown(delay=0){
 var clientsId = [''];
 var speedRefreshId;
 function sendSpeed(sock, delay=0){
-  if(delay)
-	speedRefreshId=setInterval(function(){sock.emit('speed', currentSpeed);}, delay);
-  else{	setSpeed(0); clearInterval(speedRefreshId);
+	if(delay)
+		speedRefreshId=setInterval(function(){sock.emit('speed', currentSpeed);}, delay);
+	else{	setSpeed(0); clearInterval(speedRefreshId);
 }	}
 
 io.sockets.on('connection', function(socket){
