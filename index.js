@@ -107,12 +107,12 @@ function getSpeed(period=10){
 	setTimeout(function(){getSpeed(period);}, 1<<period);
 }
 
-function setSpeed(v){
+function setSpeed(v, sock=0){
 	clearInterval(setSpeedIntervalId); v=(v<0?0:v); v=(v>speedMax?speedMax:v);
 	setSpeedIntervalId=setInterval(function(){
-		if(currentSpeed===v)
+		if(currentSpeed===v){
 			clearInterval(setSpeedIntervalId);
-		else{	if(v && init){
+		}else{	if(/*v && */init){
 				var speed, delta=v-currentSpeed, sign=Math.sign(delta);
 				delta*=sign; delta=sign*(delta > deltaMax ? deltaMax : delta);
 				//speed = Math.round((currentSpeed+delta)*10)/10;
@@ -124,6 +124,8 @@ function setSpeed(v){
 					wpi.pwmWrite(motorPin, 0);
 				else	currentSpeed=0;
 		}	}
+		if(sock) sock.emit('speed', currentSpeed);
+//console.log('CurrentSpeed: '+currentSpeed);
 	}, speedPeriod);
 }
 
@@ -141,12 +143,12 @@ function resetShutdown(delay=0){
 ////////////////////////////////////////////////////////////////////////////////
 // Client/server communication :
 var clientsId = [''];
-var speedRefreshId;
+/*var speedRefreshId;
 function sendSpeed(sock, delay=0){
 	if(delay)
 		speedRefreshId=setInterval(function(){sock.emit('speed', currentSpeed);}, delay);
 	else{	setSpeed(0); clearInterval(speedRefreshId);
-}	}
+}	}*/
 
 io.sockets.on('connection', function(socket){
 	var id;
@@ -157,12 +159,11 @@ io.sockets.on('connection', function(socket){
 		if(clientsId[0] == '') {	// libre...
 			clientsId.splice(clientsId.indexOf(socket.id), 1);
 			clientsId[0] = socket.id;
-			socket.emit('allowed');
-			setSpeed(0); sendSpeed(socket, speedPeriod);
+			setSpeed(0, socket); /*sendSpeed(socket, speedPeriod);*/
 			id=setInterval(function(){
 				if(init)
 					clearInterval(id);
-				else	socket.emit('initDefault');
+				else	socket.emit('initFault');
 			}, 5000);
 			resetShutdown(-1);
 		}else 	socket.emit('denied');	// deja occupe!
@@ -170,19 +171,19 @@ io.sockets.on('connection', function(socket){
 
 	// On PowerOff:
 	socket.on('powerOff', function(data){if(clientsId[0] == socket.id){
-		sendSpeed(socket, 0); clientsId.unshift('');
+		setSpeed(0); clientsId.unshift('');
 		clearInterval(id);
 		resetShutdown();
 	}});
 
 	// Speed management:
 	socket.on('speed', function(data){if(clientsId[0] == socket.id){
-		setSpeed(data);
+		setSpeed(data, socket);
 	}});
 
 	// On Pause:
 	socket.on('pause', function(data){if(clientsId[0] == socket.id){
-		setSpeed(0);
+		setSpeed(0, socket);
 	}});
 
 	// On save program:
@@ -209,7 +210,7 @@ io.sockets.on('connection', function(socket){
 	// On disconnect:
 	socket.on('disconnect', function(){
 		if(clientsId[0] == socket.id){
-			sendSpeed(socket, 0);
+			setSpeed(0);
 			clientsId.unshift('');
 			resetShutdown();
 		} clientsId.splice(clientsId.indexOf(socket.id), 1);
