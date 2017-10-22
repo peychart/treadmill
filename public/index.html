@@ -214,7 +214,6 @@ function init(){
 	sock=io.connect();
 	sock.on('disconnect', function(){ if (!isPowerOff()){
 		doMessage('Désolé: connexion perdue !...','300px','18px');
-		speedo.setValueAnimated(0, speedo.getValue());
 		clickPower();
 	}});
 	sock.on('denied', function(){
@@ -227,15 +226,13 @@ function init(){
 	});
 	sock.on('speed', function(v){
 		if(isPowerOff()){//Connection established:
-			var el=document.getElementById('power'), s='./public/images/'+el.id;
-			doMessage();
-			//clignote(el, s+'-on.png', 1500, s+'.png', 3000);
+			var el=document.getElementById('power');
+			//clignote(el, './public/images/'+el.id+'-on.png', 1500, './public/images/'+el.id+'.png', 3000);
 			el.src='./public/images/'+el.id+'-on.png';
-			el.value='Power Off';
-			shutdown(); document.getElementById('video').play();
-		}
-		speedo.setValueAnimated(v, speedo.getValue());
-		if(v>0)	chrono.start();
+			el.value='Power Off'; document.getElementById('video').play();
+			doMessage(); shutdown();
+		} speedo.setValueAnimated(v, speedo.getValue());
+		if(v>0 && speedThreshold()>0)	chrono.start();
 		else if(!isSpeedGraph() || !isPauseOff())
 			chrono.stop();
 	});
@@ -250,10 +247,8 @@ function clickPower(el=document.getElementById('power')){
 		var s='./public/images/'+el.id;
 		sock.emit('powerOff'); clickStop();
 		clignote(el, s+'-off.png', 500); clignote(el, s+'-off.png', 3000);
-		el.value='Power On';
+		el.value='Power On'; speedo.setValueAnimated(0, speedo.getValue());
 		document.getElementById('video').pause();
-        	document.getElementById('speedBarGraphs').style.display='none';
-        	document.getElementById('interface').style.display='block';
 }	}
 
 function clickStop(el=document.getElementById('stop')){
@@ -261,15 +256,13 @@ function clickStop(el=document.getElementById('stop')){
 	if(!isPowerOff(true) && isStopOff()){
 		el.value='Acknowledge Stop'; el.scr=s+'-on.png';
 		if(!isPowerOff()) clignote(el, s+'-off.png', 750, s+'.png', 100);
-		clearTimeout(this.refreshDownCounterIntervalId);
 		sock.emit('speed', 0); clearStopMode();
 		speedThreshold(0); setTimeout('speedo.setOdoValue(0)', delay);
-		chrono.stop(); setTimeout('chronoReset()', delay);
+		setTimeout('chronoReset()', delay); //chrono.stop();
 		if(!isPauseOff()) clickPause();
-		deleteSpeedGraph();
-		setTimeout(function(e=el,i=s){
-			if(!isStopOff()) clignote(e, i+'.png', 100);
-			e.value='Stop'; e.scr=i+'.png';
+		setTimeout(function(){
+			if(!isStopOff()) clignote(el, s+'.png', 100);
+			el.value='Stop'; el.scr=s+'.png';
 		}, delay);
 }	}
 
@@ -283,7 +276,7 @@ function clickPause(el=document.getElementById('pause')){
 				sock.emit('speed', 0); el.value='Pause Off';
 				clignote(el, s+'-on.png', 800, s+'.png', 500);
 			} break;
-		    default:el.value='Pause On';chrono.start();
+		    default:el.value='Pause On'; //chrono.start();
 			if(isSpeedGraph()) chrono.start();
 			else if(!speedThreshold()) isSpeedUp(true);
 			sock.emit('speed', speedThreshold(speedThreshold()));
@@ -293,7 +286,7 @@ function clickPause(el=document.getElementById('pause')){
 function clickSpeed(el){
 	if(!isPowerOff(true) && isStopOff()){
 		el.src='./public/images/'+el.id+'-on.png';
-		setTimeout(function(e=el){e.src='./public/images/'+e.id+'.png';}, 200);
+		setTimeout(function(){el.src='./public/images/'+el.id+'.png';}, 200);
 		if(el.id=='up')
 			speedThreshold(speedThreshold() + 0.5);
 		else	speedThreshold(speedThreshold() - 0.5);

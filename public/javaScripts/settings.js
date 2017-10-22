@@ -2,13 +2,14 @@ function clearStopMode(){
 	resetStopMode(); document.getElementById("canvasLcdChrono").style.display='none';
 }function resetStopMode(){
 	clearInterval(this.flashDisplayIntervalId);
-	clearInterval(this.refreshDownCounterIntervalId);
+	clearInterval(this.refreshDownCounterIntervalId);this.refreshDownCounterIntervalId=0;
 	document.getElementById('comboTime').style.display='none';
 	document.getElementById('comboTime').options.selectedIndex=0;
 	document.getElementById('comboDistance').style.display='none';
 	document.getElementById('comboDistance').options.selectedIndex=0;
 	document.getElementById('comboStopMode').style.display='none';
 	document.getElementById('comboStopMode').options.selectedIndex=0;
+	deleteSpeedGraph();
 }
 
 function openComboStopMode(){
@@ -68,7 +69,7 @@ function downCounter(duree, type=0){
 		if(residual(duree, type)<=0){
 			deleteSpeedGraph();
 			if(speedThreshold()<10){
-				clearInterval(this.refreshDownCounterIntervalId);
+				clearInterval(this.refreshDownCounterIntervalId);this.refreshDownCounterIntervalId=0;
 				clearStopMode(); clickPause();
 			}else{	// Yet 5km/h during 5mn:
 				chronoReset(); downCounter([5]);
