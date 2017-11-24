@@ -21,7 +21,7 @@ Software:
 Hardware:
 ---------
 
-* 1 treadmill without fonctional motherboard available, ![](doc/images/torpedo.png)
+* 1 treadmill without any fonctional motherboard available, ![](doc/images/torpedo.png)
 * 1 motor interface 180v DC 1HP (MMT-90/180DR10AL-01), ![](doc/images/motorInterface.png) ![](doc/images/interfaceCmdMotor.jpg)
 * 1 Raspberry PI 3,![](doc/images/raspberryPi3.jpg)
 * 1 MCP23017 and Expander HAT Board, ![](doc/images/mcp23017HatBoard.jpg)
