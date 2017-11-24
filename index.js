@@ -38,11 +38,11 @@ var DUMMY = true;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
-const powerPin		= 7;	// pin 11 (relay~1mn)
+const powerPin		= 23;	// pin 33 (GPIO13)-(relay~1mn)
 const powerOffDelay	= 900000;
-const motorPin		= 1;	// pin 12
-const enableCounterPin	= 2;	// pin 13
-const resetCounterPin	= 3;	// pin 15
+const motorPin		= 1;	// pin 12 (GPIO18)
+const freezeCounterPin	= 0;	// pin 11 (GPIO17)
+const resetCounterPin	= 2;	// pin 13 (GPIO27)
 const speedMax		= 25;		// km/h
 const deltaSpeed	= 2;		// km/h per second...
 const formFactor	= 36*18;	// pulses per meter...
@@ -68,6 +68,7 @@ function initHardware(){
  if(!DUMMY){
 	if(wpi.pinMode(powerPin, wpi.OUTPUT)<0
 		|| wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)	return false;
+	wpi.pwmSetMode(PWM_MODE_MS); wpi.pwmSetRange(1024); wpi.pwmSetClock(16); // 19.2e6/1024/16=1.2kHz
 	wpi.pwmWrite(motorPin, 0); wpi.digitalWrite(powerPin, 0);
 
 	// MCP23017 setup:
@@ -91,10 +92,10 @@ function getSpeed(period=10){
 	if(powerOn) wpi.digitalWrite(powerPin, 1);
 	setTimeout(function(){wpi.digitalWrite(powerPin, 0);}, 1<<period>>1);
 
-	wpi.digitalWrite(enableCounterPin, 0);
+	wpi.digitalWrite(freezeCounterPin, 1);
 	var count= /*0x0fff & */wpi.wiringPiI2CReadReg16(counterFD, 0x12); // pulses/meters/(1<<period)ms
-	wpi.digitalWrite(resetCounterPin, 0); wpi.digitalWrite(resetCounterPin, 1);
-	wpi.digitalWrite(enableCounterPin, 1);
+	wpi.digitalWrite(resetCounterPin, 1); wpi.digitalWrite(resetCounterPin, 0);
+	wpi.digitalWrite(freezeCounterPin, 0);
 	//				->m		/s	    /h	 -xx.y-	== km/h
 	//currentSpeed = Math.round(count/formFactor /(1<<period) *3600 *10)/10;
 	currentSpeed = ((count*36000/formFactor+500)>>period)/10;
