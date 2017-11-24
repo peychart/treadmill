@@ -25,6 +25,6 @@ Hardware:
 * 1 motor interface 180v DC 1HP (MMT-90/180DR10AL-01), ![](doc/images/motorInterface.png) ![](doc/images/interfaceCmdMotor.jpg)
 * 1 Raspberry PI 3,![](doc/images/raspberryPi3.jpg)
 * 1 MCP23017 and Expander HAT Board, ![](doc/images/mcp23017HatBoard.jpg)
-* 1 SN74HC4040N, ![](doc/images/SN74HC4040N.jpg) ![](doc/images/IRcounter.jpg) ![](doc/images/board.jpg)
+* 1 SN74HC4040N, ![](doc/images/SN74HC4040N.jpg) ![](doc/images/IRcounter.jpg)
 * 1 infrared sensor, ![](doc/images/infraredSensor.jpg)
-* one relay and a few small components... ![](doc/images/alim.jpg)
+* one relay and a few small components... ![](doc/images/alim.jpg) ![](doc/images/board.jpg)
