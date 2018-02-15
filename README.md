@@ -28,3 +28,4 @@ Hardware:
 * 1 SN74HC4040N, ![](doc/images/SN74HC4040N.jpg) ![](doc/images/IRcounter.jpg)
 * 1 infrared sensor, ![](doc/images/infraredSensor.jpg)
 * one relay and a few small components... ![](doc/images/alim.jpg) ![](doc/images/converter.jpg) ![](doc/images/board.jpg)
+* IRSensor foot ![](doc/images/IRSensorFoot.jpg)
