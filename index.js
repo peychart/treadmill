@@ -34,7 +34,7 @@ app.use(function(req, res, next) {
 ////////////////////////////////////////////////////////////////////////////////
 // Wiring-PI code:
 // see: https://github.com/WiringPi/WiringPi-Node/blob/master/DOCUMENTATION.md
-var DUMMY = true;		// DUMMY=true for no motor connected...
+var DUMMY = false;		// DUMMY=true for no motor connected...
 				// SET DUMMY TO FALSE AT YOUR OWN RISK!!!
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
@@ -44,7 +44,8 @@ const motorPin		= 1;	// pin 12 (GPIO18)
 const freezeCounterPin	= 0;	// pin 11 (GPIO17)
 const resetCounterPin	= 2;	// pin 13 (GPIO27)
 const speedMax		= 25;		// km/h
-const deltaSpeed	= 2;		// km/h per second...
+//const deltaSpeed	= 5;		// km/h per second...
+const deltaSpeed	= 50;		// Pendant la durée des tests !!!!!!!!!!!!!!!!!!
 const formFactor	= 36*18;	// pulses per meter...
 					// 1km/h->180p/s, 25km/h->4500p/s
 const speedPeriod	= 500;		// ms
@@ -68,7 +69,9 @@ function initHardware(){
  if(!DUMMY){
 	if(wpi.pinMode(powerPin, wpi.OUTPUT)<0
 		|| wpi.pinMode(motorPin, wpi.PWM_OUTPUT)<0)	return false;
-	wpi.pwmSetMode(PWM_MODE_MS); wpi.pwmSetRange(1024); wpi.pwmSetClock(16); // 19.2e6/1024/16=1.2kHz
+	if(wpi.pinMode(resetCounterPin,, wpi.OUTPUT)<0)		return false;
+	if(wpi.pinMode(freezeCounterPin, wpi.OUTPUT)<0)		return false;
+	wpi.pwmSetMode(wpi.PWM_MODE_MS); wpi.pwmSetRange(1024); wpi.pwmSetClock(16); // 19.2e6/1024/16=1.2kHz
 	wpi.pwmWrite(motorPin, 0); wpi.digitalWrite(powerPin, 0);
 
 	// MCP23017 setup:
@@ -94,8 +97,9 @@ function getSpeed(period=10){
 
 	wpi.digitalWrite(freezeCounterPin, 1);
 	var count= /*0x0fff & */wpi.wiringPiI2CReadReg16(counterFD, 0x12); // pulses/meters/(1<<period)ms
-	wpi.digitalWrite(resetCounterPin, 1); wpi.digitalWrite(resetCounterPin, 0);
+	wpi.digitalWrite(resetCounterPin, 1);
 	wpi.digitalWrite(freezeCounterPin, 0);
+	wpi.digitalWrite(resetCounterPin, 0);
 	//				->m		/s	    /h	 -xx.y-	== km/h
 	//currentSpeed = Math.round(count/formFactor /(1<<period) *3600 *10)/10;
 	currentSpeed = ((count*36000/formFactor+500)>>period)/10;
@@ -112,15 +116,19 @@ function setSpeed(v, sock=0){
 	clearInterval(setSpeedIntervalId); v=(v<0?0:v); v=(v>speedMax?speedMax:v);
 	setSpeedIntervalId=setInterval(function(){
 		if(currentSpeed===v){
-			clearInterval(setSpeedIntervalId);
+			if(setSpeedIntervalId._idleTimeout != -1){
+				clearInterval(setSpeedIntervalId);
+				if (!v && !DUMMY) wpi.pwmWrite(motorPin, 0);
+			}
 		}else{	if(/*v && */init){
 				var speed, delta=v-currentSpeed, sign=Math.sign(delta);
 				delta*=sign; delta=sign*(delta > deltaMax ? deltaMax : delta);
 				//speed = Math.round((currentSpeed+delta)*10)/10;
 				speed = currentSpeed+delta;
-				if(!DUMMY)
+				if(!DUMMY){
 					wpi.pwmWrite(motorPin, Math.round(speed*1024/speedMax));
-				else	currentSpeed = speed;
+//console.log(Math.round(speed*1024/speedMax));
+				}else	currentSpeed = speed;
 			}else{	if(!DUMMY)
 					wpi.pwmWrite(motorPin, 0);
 				else	currentSpeed=0;

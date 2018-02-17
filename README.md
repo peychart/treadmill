@@ -29,5 +29,5 @@ Hardware:
 * 1 infrared sensor, ![](doc/images/infraredSensor.jpg)
 * one relay and a few small components... ![](doc/images/alim.jpg) ![](doc/images/converter.jpg) ![](doc/images/board.jpg)
 * IRSensor foot ![](doc/images/IRSensorFoot.jpg)
-* last tests foot ![](doc/images/lastTests.jpg)
+* last tests ![](doc/images/lastTests.jpg)
 
