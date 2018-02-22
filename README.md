@@ -26,8 +26,7 @@ Hardware:
 * 1 Raspberry PI 3,![](doc/images/raspberryPi3.jpg)
 * 1 MCP23017 and Expander HAT Board, ![](doc/images/mcp23017HatBoard.jpg)
 * 1 SN74HC4040N, ![](doc/images/SN74HC4040N.jpg) ![](doc/images/IRcounter.jpg)
-* 1 infrared sensor, ![](doc/images/infraredSensor.jpg)
 * one relay and a few small components... ![](doc/images/alim.jpg) ![](doc/images/converter.jpg) ![](doc/images/board.jpg)
 * IRSensor foot ![](doc/images/IRSensorFoot.jpg)
-* last tests ![](doc/images/lastTests.jpg)
+* last tests ![](doc/images/lastTests.jpg) ![](doc/images/lastTests2.jpg) ![](doc/images/lastTests3.jpg)
 
