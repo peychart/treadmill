@@ -4,7 +4,7 @@ Documentation=https://treadmill.peychart.homelinuxserver.org
 After=network.target
 
 [Service]
-Environment=NODE_PORT=3000
+Environment=NODE_PORT=80
 Environment=NODE_HOSTNAME=0.0.0.0
 Type=simple
 User=root

@@ -39,7 +39,7 @@ var DUMMY = false;		// DUMMY=true for no motor connected...
 				// This program is distributed in the hope that
 				// it will be useful, but WITHOUT ANY WARRANTY.
 const powerPin		= 23;	// pin 33 (GPIO13)-(relay~1mn)
-const powerOffDelay	= 900000;
+const powerOffDelay	= 600000;
 const motorPin		= 1;	// pin 12 (GPIO18)
 const freezeCounterPin	= 0;	// pin 11 (GPIO17)
 const resetCounterPin	= 2;	// pin 13 (GPIO27)
@@ -77,14 +77,15 @@ function initHardware(){
 	// MCP23017 setup:
 	if((counterFD=wpi.wiringPiI2CSetup(0x20))<0)		// pin 15:17 to ground=0x20
 								return false;
-	if(wpi.wiringPiI2CWriteReg8(counterFD, 0x0a, 0x20)<0){	// set 16 bits mode
+	if(wpi.wiringPiI2CWriteReg8(counterFD, 0x05, 0x00)<0
+	  || wpi.wiringPiI2CWriteReg8(counterFD, 0x0a, 0x20)<0){// set 16 bits mode
 						wiringPiI2CClose(counterFD);
 								return false;}
 	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x00, 0xffff)<0){// set all pins as INPUT
 						wiringPiI2CClose(counterFD);
 								return false;}
 	if(wpi.wiringPiI2CWriteReg16(counterFD, 0x0c, 0xf000)<0	// set pullup on 4 disconnected HSBits
-	|| wpi.wiringPiI2CWriteReg16(counterFD, 0x01, 0xf000)<0){// and convert them to 0
+	|| wpi.wiringPiI2CWriteReg16(counterFD, 0x02, 0xf000)<0){// and convert them to 0
 						wiringPiI2CClose(counterFD);
 								return false;}
 	getSpeed();
@@ -182,7 +183,7 @@ io.sockets.on('connection', function(socket){
 	socket.on('powerOff', function(data){if(clientsId[0] == socket.id){
 		setSpeed(0); clientsId.unshift('');
 		clearInterval(id);
-		resetShutdown();
+		resetShutdown(30000);
 	}});
 
 	// Speed management:
