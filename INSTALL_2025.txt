@@ -1,0 +1,34 @@
+#!/bin/bash
+#This NodeJs application use this lib: http://wiki.sandaysoft.com/a/SteelSeries_Gauges
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get install -y git wget curl
+
+# Nodejs installation:
+apt install nodejs nmp -y
+
+# Configure I2C: (see: https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c)
+sudo apt-get install -y python3-smbus
+grep -qs '^i2c-bcm2708' /etc/modules || echo 'i2c-bcm2708' >>/etc/modules
+grep -qs '^i2c-dev' /etc/modules || echo 'i2c-dev' >>/etc/modules
+# uncomment: '#dtparam=i2c_arm=on' and '#dtparam=i2s=on' in /boot/firmware/config.txt and reboot...
+sudo apt-get install -y i2c-tools
+sudo i2cdetect -y 1	# detecte the I2C connected interfaces...
+
+# Treadmill installation:
+sudo mkdir -p /var/www
+sudo chown $USER: /var/www
+cd /var/www
+git clone https://github.com/peychart/treadmill treadmill
+which nodejs || ln -s $(which node) /usr/local/bin/nodejs
+cd treadmill
+sudo npm install
+sudo cp treadmill.service /lib/systemd/system
+sudo systemctl enable treadmill
+sudo systemctl start treadmill
+
+netstat -ant
+
+NOTA: On error "Unable to determine hardware version. I see: Hardware	: BCM2835", downgrades the kernel to 4.4.50-v7+ : rpi-update 52241088c1da59a359110d39c1875cda56496764 # see: https://github.com/Hexxeh/rpi-firmware/commits/master
+
+echo 'Run Forest run!...'
