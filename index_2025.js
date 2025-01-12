@@ -47,7 +47,7 @@ var DUMMY = true;						// DUMMY=true for no motor connected...
 								// it will be useful, but WITHOUT ANY WARRANTY.
 const powerPin		= new Gpio(23, { mode: Gpio.OUTPUT });	// pin 33 (GPIO13)-(relay~1mn)
 const motorPin		= new Gpio( 1, { mode: Gpio.PWM });	// pin 12 (GPIO18)
-const freezeCounterPin	= new Gpio( 0, { mode: Gpio.OUTPUT });	// pin 11 (GPIO17)
+const enableCounterPin	= new Gpio( 0, { mode: Gpio.OUTPUT });	// pin 11 (GPIO17)
 const resetCounterPin	= new Gpio( 2, { mode: Gpio.OUTPUT });	// pin 13 (GPIO27)
 
 const powerOffDelay	= 600000;
@@ -91,11 +91,11 @@ function getSpeed(period=10){
 	if (powerOn)	powerPin.digitalWrite(1);
 	setTimeout(() => { powerPin.digitalWrite(0);}, 1<<period>>1);
 
-	freezeCounterPin.digitalWrite(1);
+	enableCounterPin.digitalWrite(0);
 	//let count= /*0x0fff & */wpi.wiringPiI2CReadReg16(counterFD, 0x12);	// pulses/meters/(1<<period)ms
 	let count = !DUMMY ?i2cBus.readWordSync(mcpAddress, 0x12) :0;		// Read from MCP23017 register
 	resetCounterPin.digitalWrite(1);
-	freezeCounterPin.digitalWrite(0);
+	enableCounterPin.digitalWrite(1);
 	resetCounterPin.digitalWrite(0);
 
 	// Convert count to speed
@@ -254,7 +254,7 @@ server.listen(port, hostname, () => {
 process.on('SIGINT', () => {
 	powerPin.digitalWrite(0);
 	motorPin.pwmWrite(0);
-	freezeCounterPin.digitalWrite(0);
+	enableCounterPin.digitalWrite(0);
 	resetCounterPin.digitalWrite(0);
 	if (!DUMMY) {
 		i2cBus.closeSync(); // Close I2C bus only if not in DUMMY mode
